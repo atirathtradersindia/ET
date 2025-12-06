@@ -199,7 +199,7 @@ const Hero = ({ navigateToSection, showInnovation }) => {
       <div ref={labelRef} className="label absolute text-secondary text-base font-bold pointer-events-none hidden z-30 text-shadow-neon"></div>
       
       <div className="container relative z-30 hero-content">
-        <h1 className="text-5xl font-bold mb-4 text-shadow-neon font-inter">
+        <h1 className="text-5xl font-bold mb-4 text-shadow-black font-inter">
           Revolutionizing Global Supply Chains with Futuristic Solutions
         </h1>
         <p className="text-xl max-w-3xl mx-auto mb-8 font-inter">

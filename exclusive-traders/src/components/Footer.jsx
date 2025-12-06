@@ -13,8 +13,8 @@ const Footer = ({ navigateToSection }) => {
                   alt="Exclusive Traders Logo" 
                   className="h-10 w-auto object-contain"
                 />
-                <span className="logo-text text-xl font-bold">
-                  Exclusive <span className="text-secondary">Traders</span>
+                <span className="logo-text text-xl font-bold font-serif">
+                  Exclusive <span className="text-secondary font-serif">Trader</span>
                 </span>
               </div>
             </div>
@@ -58,7 +58,7 @@ const Footer = ({ navigateToSection }) => {
           </div>
           
           <div className="footer-section">
-            <h3 className="text-secondary text-xl font-semibold mb-6 text-shadow-neon">Quick Links</h3>
+            <h3 className="text-secondary text-xl font-semibold mb-6 text-shadow-black">Quick Links</h3>
             <ul className="list-none">
               <li className="mb-3"><a href="#" onClick={() => navigateToSection('hero')} className="text-white no-underline transition-colors duration-300 hover:text-secondary">Home</a></li>
               <li className="mb-3"><a href="#" onClick={() => navigateToSection('services')} className="text-white no-underline transition-colors duration-300 hover:text-secondary">Services</a></li>
@@ -69,7 +69,7 @@ const Footer = ({ navigateToSection }) => {
           </div>
           
           <div className="footer-section">
-            <h3 className="text-secondary text-xl font-semibold mb-6 text-shadow-neon">Services</h3>
+            <h3 className="text-secondary text-xl font-semibold mb-6 text-shadow-black">Services</h3>
             <ul className="list-none">
               <li className="mb-3"><a href="#" className="text-white no-underline transition-colors duration-300 hover:text-secondary">AI-Optimized Shipping</a></li>
               <li className="mb-3"><a href="#" className="text-white no-underline transition-colors duration-300 hover:text-secondary">Smart Warehousing</a></li>
@@ -81,7 +81,7 @@ const Footer = ({ navigateToSection }) => {
           
           {/* Contact Section with ID for header navigation */}
           <div id="contact" className="footer-section">
-            <h3 className="text-secondary text-xl font-semibold mb-6 text-shadow-neon">Contact Us</h3>
+            <h3 className="text-secondary text-xl font-semibold mb-6 text-shadow-black">Contact Us</h3>
             <ul className="list-none">
               <li className="mb-3 flex items-center gap-2">
                 <i className="fas fa-map-marker-alt text-secondary"></i> 

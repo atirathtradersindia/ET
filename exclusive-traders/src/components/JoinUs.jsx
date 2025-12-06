@@ -6,7 +6,7 @@ const JoinUs = () => {
     <div className="min-h-screen bg-dark text-light py-8 px-4 professional-section">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16 animate-fade-in-up">
-          <h1 className="professional-heading text-secondary text-shadow-neon">
+          <h1 className="professional-heading text-secondary text-shadow-black">
             Join Our Global Trading Network
           </h1>
           <p className="professional-body max-w-3xl mx-auto mt-4">

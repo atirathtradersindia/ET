@@ -46,7 +46,7 @@ const AllProductsPage = ({ showIndustryProducts, currentUser, onBackToIndustries
     <section id="all-products" className="py-20 bg-dark min-h-screen">
       <div className="container mx-auto px-4">
         <div className="section-title text-center mb-12">
-          <h2 className="text-4xl text-secondary mb-4 text-shadow-neon">All Products</h2>
+          <h2 className="text-4xl text-secondary mb-4 text-shadow-black font-serif">All Products</h2>
           <p className="text-gray max-w-2xl mx-auto">
             Explore our complete range of {allIndustries.length} products across all industries
           </p>

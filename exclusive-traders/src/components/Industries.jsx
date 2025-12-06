@@ -43,7 +43,7 @@ const Industries = ({ showIndustryProducts, currentUser, onViewAllProducts }) =>
     <section id="industries" className="py-20 bg-dark">
       <div className="container mx-auto px-4">
         <div className="section-title text-center mb-12">
-          <h2 className="text-4xl text-secondary mb-4 text-shadow-neon">Industries We Transform</h2>
+          <h2 className="text-4xl text-secondary mb-4 text-shadow-black">Industries We Transform</h2>
           <p className="text-gray max-w-2xl mx-auto">
             Specialized solutions for diverse sectors, powered by cutting-edge technology.
           </p>
