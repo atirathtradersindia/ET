@@ -244,32 +244,34 @@ function App() {
         <Routes>
           {/* HOME – ALL SECTIONS WITH SCROLL */}
           <Route
-            path="/home"
-            element={
-              <>
-                {/* RSS Feed */}
-                <div className="sticky top-16 md:top-20 z-30">
-                  <BasmatiRSSFeed />
-                </div>
-                <div id="hero"><Hero showInnovation={showInnovation} /></div>
-                <div id="about"><About /></div>
-                <div id="services"><Services /></div>
-                <div id="industries">
-                  <Industries
-                    showIndustryProducts={showIndustryProducts}
-                    currentUser={currentUser}
-                    onViewAllProducts={showAllProducts}
-                  />
-                </div>
-                <div id="leadership"><Leadership /></div>
+  path="/home"
+  element={
+    <>
+      {/* HERO FIRST – NO STICKY RSS ON TOP */}
+      <div id="hero">
+        <Hero showInnovation={showInnovation} />
+      </div>
 
-                {/* FIXED: Changed IDs to lowercase with hyphens */}
-                {/* <div id="blog"><Blog /></div>
-                <div id="join-us"><JoinUs /></div> */}
-                <div id="quote-request"><QuoteRequest /></div>
-              </>
-            }
-          />
+      {/* RSS FEED AFTER HERO – NORMAL FLOW, NO STICKY */}
+      <div className="relative z-20 bg-black/80">
+        <BasmatiRSSFeed />
+      </div>
+
+      {/* Rest of your sections */}
+      <div id="about"><About /></div>
+      <div id="services"><Services /></div>
+      <div id="industries">
+        <Industries
+          showIndustryProducts={showIndustryProducts}
+          currentUser={currentUser}
+          onViewAllProducts={showAllProducts}
+        />
+      </div>
+      <div id="leadership"><Leadership /></div>
+      <div id="quote-request"><QuoteRequest /></div>
+    </>
+  }
+/>
           
           {/* Individual full-page routes */}
           <Route path="/services" element={<Services />} />
