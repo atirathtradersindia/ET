@@ -93,7 +93,7 @@ const Footer = ({ navigateToSection }) => {
               </li>
               <li className="mb-3 flex items-center gap-2">
                 <i className="fas fa-envelope text-secondary"></i> 
-               Fmcg@exclusivetrader.co.uk
+               fmcg@exclusivetrader.co.uk
               </li>
               <li className="mb-3 flex items-center gap-2">
                 <i className="fas fa-clock text-secondary"></i> 

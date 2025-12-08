@@ -192,15 +192,22 @@ const Hero = ({ showInnovation }) => {
           Discover Our Innovations
         </button>
       </div>
-      {/* TRUSTED PARTNERS – NOW IN NORMAL FLOW */}
+      
+      {/* TRUSTED PARTNERS - No blank spaces before/after */}
       <div className="relative z-10 w-full bg-black/40 backdrop-blur-sm py-12 border-t border-white/10">
         <h3 className="text-center text-white/80 text-sm md:text-lg font-semibold mb-8 tracking-widest">
           TRUSTED PARTNERS
         </h3>
-        <div className="overflow-hidden max-w-7xl mx-auto px-8">
-          <div className="flex animate-marquee-infinite gap-10 md:gap-16">
-            {[...scrollImages, ...scrollImages].map((img, i) => (
-              <div key={i} className="flex-shrink-0">
+        <div className="overflow-hidden max-w-full mx-auto px-0">
+          <div 
+            className="flex gap-8 md:gap-12"
+            style={{
+              animation: 'scroll 15s linear infinite',
+              width: 'max-content'
+            }}
+          >
+            {[...scrollImages, ...scrollImages, ...scrollImages, ...scrollImages].map((img, i) => (
+              <div key={i} className="flex-shrink-0 px-2 md:px-4">
                 <img
                   src={img}
                   alt="Partner logo"
@@ -212,6 +219,18 @@ const Hero = ({ showInnovation }) => {
           </div>
         </div>
       </div>
+
+      {/* Inline CSS for animation - NO BLANK SPACES */}
+      <style>{`
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(calc(-25% - 8px));
+          }
+        }
+      `}</style>
     </section>
   );
 };

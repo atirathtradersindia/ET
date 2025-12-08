@@ -87,12 +87,12 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
   brands: ["Basmati", "Non-Basmati"],
   products: [
     { id: 101, name: "1121 Basmati Rice", brand: "Basmati", price: "$12.99 per kg", image: "/img/1121_Steam_Basamati.jpg" },
-    { id: 102, name: "1509 Grain Basmati", brand: "Basmati", price: "$10.99 per kg", image: "/img/1509_steam_Basamati.jpg" },
+    { id: 102, name: "1509 Basmati", brand: "Basmati", price: "$10.99 per kg", image: "/img/1509_steam_Basamati.jpg" },
     { id: 103, name: "1401 Basmati Rice", brand: "Basmati", price: "$14.99 per kg", image: "/img/1401_Steam_Basamati.jpg" },
     { id: 104, name: "Pusa Basmati", brand: "Basmati", price: "$16.99 per kg", image: "/img/Pusa_Basmati.jpg" },
-    { id: 105, name: "Traditional Basmati Rice", brand: "Basmati", price: "$16.99 per kg", image: "/img/Traditional_Basmati.jpg" },
+    // { id: 105, name: "Traditional Basmati Rice", brand: "Basmati", price: "$16.99 per kg", image: "/img/Traditional_Basmati.jpg" },
     { id: 106, name: "1718 Basmati Rice", brand: "Basmati", price: "$16.99 per kg", image: "/img/1718_Steam_Basamati.jpg" },
-    { id: 107, name: "1885 Basmati Rice", brand: "Basmati", price: "$16.99 per kg", image: "/img/1885_Basmati.jpg" },
+    // { id: 107, name: "1885 Basmati Rice", brand: "Basmati", price: "$16.99 per kg", image: "/img/1885_Basmati.jpg" },
     { id: 201, name: "Sona Masoori (Non-Basmati) Rice", brand: "Non-Basmati", price: "$8.99 per kg", image: "/img/Sona_Masoori_rice.jpg" },
     { id: 202, name: "Sugandha (Non-Basmati)", brand: "Non-Basmati", price: "$7.99 per kg", image: "/img/Sugandha_rice.jpg" },
     { id: 203, name: "RH-10 (Non-Basmati) Rice", brand: "Non-Basmati", price: "$9.99 per kg", image: "/img/Rh-10_rice.jpg" },
@@ -103,7 +103,9 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
     { id: 208, name: "GR-11 (Non-Basmati) Rice", brand: "Non-Basmati", price: "$8.99 per kg", image: "/img/Gr-11_rice.jpg" },
     { id: 209, name: "Swarna (Non-Basmati) Rice", brand: "Non-Basmati", price: "$7.99 per kg", image: "/img/swarna_rice.jpg" },
     { id: 210, name: "Kalizeera (Non-Basmati) Rice", brand: "Non-Basmati", price: "$9.99 per kg", image: "/img/Kalizeera_rice.jpg" },
-    { id: 211, name: "Ponni Rice (Non-Basmati) Rice", brand: "Non-Basmati", price: "$6.99 per kg", image: "/img/Ponni_rice.jpg" }
+    { id: 211, name: "Ponni Rice (Non-Basmati) Rice", brand: "Non-Basmati", price: "$6.99 per kg", image: "/img/Ponni_rice.jpg" },
+    { id: 212, name: "Sharbati (Non-Basmati) Rice", brand: "Non-Basmati", price: "9.99 per kg", image: "https://2.wlimg.com/product_images/bc-full/2025/4/14462690/sharbati-non-basmati-rice-1745040326-7919729.jpeg"}
+    
   ]
 },
         Perfumes: {
@@ -128,7 +130,7 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
     { id: 14, name: "Sea Breeze Fresh", brand: "fresh", price: "₹1,500-2,800 per 50ml", image: "https://www.indicinspirations.com/cdn/shop/products/sea-breeze-fragrance-fragrances-461455.jpg?v=1659387226&width=899" },
     { id: 15, name: "Orange Zest Cologne", brand: "citrus", price: "₹1,200-2,400 per 50ml", image: "https://hips.hearstapps.com/hmg-prod/images/citrus-perfumes-6633e41ad3543.png?crop=1.00xw:0.668xh;0,0.332xh&resize=640:*" },
     { id: 16, name: "Rose & Oud Blend", brand: "floral", price: "₹2,500-5,000 per 50ml", image: "https://m.media-amazon.com/images/I/518vGLpm82L._SY780_.jpg" },
-    { id: 17, name: "Spicy Cinnamon", brand: "oriental", price: "₹1,800-3,600 per 50ml", image: "https://cdn.shopify.com/s/files/1/0267/4223/9077/products/spicy-cinnamon-perfume_1200x1200.jpg?v=1582277895" },
+    { id: 17, name: "Spicy Cinnamon", brand: "oriental", price: "₹1,800-3,600 per 50ml", image: "https://www.osmoz.com/Public/Files/article/cinnamon_perfume_2039ef8bed.jpg" },
     { id: 18, name: "Teak Wood Essence", brand: "woody", price: "₹2,800-5,500 per 50ml", image: "https://fimgs.net/mdimg/perfume/o.45339.jpg" },
     { id: 19, name: "Rainforest Mist", brand: "fresh", price: "₹1,600-3,000 per 50ml", image: "https://reedsms.com/cdn/shop/files/Rainforest_Mist_Cologne_4_1400x.jpg?v=1739489218" },
     { id: 20, name: "Lemon Grass Fresh", brand: "citrus", price: "₹1,100-2,200 per 50ml", image: "https://www.rosemoore.co.in/cdn/shop/files/Lemongrass_air_freshener_large.png?v=1719213282" }
