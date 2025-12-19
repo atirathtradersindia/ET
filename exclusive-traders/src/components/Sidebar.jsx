@@ -38,14 +38,6 @@ const Sidebar = ({
 
   const riceCategoryCounts = getRiceCategoryCounts();
 
-  // Handle exit/back button click
-  const handleExitButtonClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log('Exit button clicked - going back to products');
-    goBackToProducts();
-  };
-
   // Handle category item click
   const handleCategoryClick = (item) => {
     console.log('Selected item:', item);
@@ -66,16 +58,7 @@ const Sidebar = ({
       >
         <div className="bg-gradient-to-b from-white/10 to-white/5 rounded-none pt-4 px-4 pb-4 h-full overflow-y-auto">
           
-          {/* Simple Back Button for Mobile */}
-          <div className="lg:hidden mb-4">
-            <button
-              onClick={handleExitButtonClick}
-              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all duration-300 transform hover:scale-110 border border-white/30"
-              aria-label="Go back to products"
-            >
-              <i className="fas fa-arrow-left text-sm"></i>
-            </button>
-          </div>
+          {/* REMOVED: Back to All Products button/text - NOTHING HERE */}
 
           {/* Categories */}
           <div className="mb-4">
@@ -161,11 +144,6 @@ const Sidebar = ({
               Showing <span className="text-secondary font-bold">{filteredProducts.length}</span> of{' '}
               <span className="text-accent font-bold">{industryData.products.length}</span> products
             </p>
-            {isRiceIndustry && (
-              <p className="text-light text-xs text-center mt-1">
-                Total: <span className="text-accent font-bold">18</span> rice products
-              </p>
-            )}
           </div>
         </div>
       </div>
@@ -177,16 +155,6 @@ const Sidebar = ({
           onClick={toggleSidebar}
         ></div>
       )}
-
-      {/* Mobile menu toggle button */}
-      <button
-        onClick={toggleSidebar}
-        className={`fixed bottom-4 left-4 z-50 lg:hidden p-3 rounded-full bg-gradient-to-r from-secondary to-accent text-white shadow-lg transition-all duration-300 transform ${
-          isSidebarOpen ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'
-        }`}
-      >
-        <i className="fas fa-bars text-lg"></i>
-      </button>
 
       {/* Custom CSS for better mobile experience */}
       <style jsx>{`

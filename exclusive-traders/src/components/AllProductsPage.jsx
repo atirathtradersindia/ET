@@ -1,3 +1,5 @@
+import React from 'react';
+
 const AllProductsPage = ({ showIndustryProducts, currentUser, onBackToIndustries }) => {
   const allIndustries = [
     { id: 'Chocolate', name: 'Chocolate', image: 'https://shreejifoods.in/cdn/shop/products/IMG_19032021_095047__500_x_500_pixel.jpg?v=1616404272' },
@@ -17,22 +19,15 @@ const AllProductsPage = ({ showIndustryProducts, currentUser, onBackToIndustries
   ];
 
   const handleIndustryClick = (industryId) => {
-    if (!currentUser) {
-      alert('Please sign in to view products');
-      window.location.hash = '#signin';
-      return;
-    }
+    // REMOVE THE SIGN-IN CHECK - Allow viewing without sign-in
     showIndustryProducts(industryId);
   };
 
   const handleBackToIndustries = () => {
-    // Use the provided function to navigate back to industries section
     if (onBackToIndustries) {
       onBackToIndustries();
     } else {
-      // Fallback navigation
       window.location.hash = '#home';
-      // Scroll to industries section after a short delay
       setTimeout(() => {
         const industriesSection = document.getElementById('industries');
         if (industriesSection) {

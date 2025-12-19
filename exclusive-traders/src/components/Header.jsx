@@ -12,8 +12,20 @@ const Header = ({
 }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
+  const [isVerySmallScreen, setIsVerySmallScreen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Check screen size for iPhone Mini
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsVerySmallScreen(window.innerWidth < 375); // iPhone Mini width
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   // Get current page from URL path
   const getCurrentPageFromPath = () => {
@@ -46,7 +58,7 @@ const Header = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showProfileDropdown]);
 
-  // Scroll detection logic (unchanged)
+  // Scroll detection logic
   useEffect(() => {
     const handleScroll = () => {
       if (location.pathname === '/' || location.pathname === '/home') {
@@ -184,41 +196,44 @@ const Header = ({
   };
 
   return (
-    <header className="bg-primary/90 text-light py-4 sticky top-0 z-50 shadow-neon backdrop-blur-sm w-full">
-      <div className="w-full flex justify-between items-center px-4">
-        {/* Logo + Tagline */}
-        <div className="flex flex-col items-start">
-          <div className="flex items-center gap-2 md:gap-4">
+    <header className="bg-primary/90 text-light py-1 md:py-3 sticky top-0 z-50 shadow-neon backdrop-blur-sm w-full">
+      <div className="w-full flex justify-between items-center px-1.5 sm:px-3 md:px-4 lg:px-6">
+        {/* Logo + Tagline - OPTIMIZED FOR IPHONE MINI */}
+        <div className="flex items-center flex-shrink min-w-0 max-w-[60%] sm:max-w-[70%]">
+          <div className="flex items-center gap-1 sm:gap-2 md:gap-3 min-w-0">
             <img
               src={logo}
               alt="Logo"
-              className="h-10 md:h-12 w-auto object-contain drop-shadow-neon cursor-pointer"
+              className="h-5 sm:h-8 md:h-10 w-auto object-contain drop-shadow-neon cursor-pointer flex-shrink-0"
               onClick={(e) => handleNavClick("home", e)}
               onError={(e) => {
                 e.target.src = 'https://via.placeholder.com/150?text=ET';
               }}
             />
-            <div className="flex flex-col leading-tight">
-              <span
-                className="text-xl md:text-3xl font-bold cursor-pointer font-serif"
+            <div className="flex flex-col leading-tight min-w-0 flex-shrink">
+              <div 
+                className="cursor-pointer font-serif truncate"
                 onClick={(e) => handleNavClick("home", e)}
               >
-                Exclusive <span className="text-secondary text-shadow-black font-serif">Trader</span>
-              </span>
-              <span className="text-xs md:text-sm text-light/80 font-serif tracking-wider">
-                Your Partner in International Commerce
+                <span className="text-xs sm:text-sm md:text-lg lg:text-xl xl:text-2xl font-bold">
+                  {isVerySmallScreen ? "E." : "Exclusive Trader"}
+                  <span className="text-secondary text-shadow-black"> </span>
+                </span>
+              </div>
+              <span className="text-[7px] sm:text-xs md:text-sm text-light/80 font-serif tracking-wider truncate">
+                {isVerySmallScreen ? "Trade Partner" : "Your Partner in Commerce"}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Right side: Mobile toggle + Profile (mobile) + Desktop Nav */}
-        <div className="flex items-center gap-4">
+        {/* Right side: Mobile toggle + Profile (mobile) */}
+        <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
           {/* Profile avatar on mobile (always visible, next to hamburger) */}
           {currentUser && (
             <div className="md:hidden profile-dropdown">
               <div
-                className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center text-dark font-bold text-sm cursor-pointer"
+                className="w-5 h-5 sm:w-7 sm:h-7 bg-secondary rounded-full flex items-center justify-center text-dark font-bold text-[10px] sm:text-xs cursor-pointer flex-shrink-0"
                 onClick={handleProfileDropdown}
               >
                 {getUserInitials()}
@@ -226,12 +241,13 @@ const Header = ({
             </div>
           )}
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Toggle - COMPACT */}
           <button
             onClick={() => toggleMobileMenu()}
-            className="md:hidden text-light hover:text-secondary transition-colors z-50"
+            className="md:hidden text-light hover:text-secondary transition-colors z-50 flex-shrink-0"
+            aria-label="Toggle menu"
           >
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {isMobileMenuOpen ? (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               ) : (
@@ -240,9 +256,9 @@ const Header = ({
             </svg>
           </button>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center pr-4">
-            <ul className="flex gap-6 items-center text-sm lg:text-base">
+          {/* Desktop Nav - HIDDEN ON MOBILE */}
+          <nav className="hidden md:flex items-center">
+            <ul className="flex gap-2 lg:gap-4 xl:gap-6 items-center text-xs lg:text-sm xl:text-base">
               <li><Link to="/home" className={`font-medium ${isActivePage("home")}`} onClick={(e) => handleNavClick("home", e)}>Home</Link></li>
               <li><Link to="/about" className={`font-medium ${isActivePage("about")}`} onClick={(e) => handleNavClick("about", e)}>About</Link></li>
               <li><Link to="/services" className={`font-medium ${isActivePage("services")}`} onClick={(e) => handleNavClick("services", e)}>Services</Link></li>
@@ -256,41 +272,41 @@ const Header = ({
               {/* Authentication */}
               {!currentUser ? (
                 <>
-                  <li><Link to="/signin" className="font-medium hover:text-secondary transition-colors px-3 py-2 rounded-lg hover:bg-primary/50">Sign In</Link></li>
-                  <li><Link to="/signup" className="font-medium bg-secondary text-dark px-4 py-2 rounded-lg hover:bg-accent transition-colors">Sign Up</Link></li>
+                  <li><Link to="/signin" className="font-medium hover:text-secondary transition-colors px-1.5 py-0.5 lg:px-2 lg:py-1 rounded-lg hover:bg-primary/50 text-xs lg:text-sm">Sign In</Link></li>
+                  <li><Link to="/signup" className="font-medium bg-secondary text-dark px-1.5 py-0.5 lg:px-2 lg:py-1 rounded-lg hover:bg-accent transition-colors text-xs lg:text-sm">Sign Up</Link></li>
                 </>
               ) : (
                 <li className="relative profile-dropdown">
                   <div
-                    className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg hover:bg-primary/50 transition-colors"
+                    className="flex items-center gap-1 lg:gap-2 cursor-pointer px-1.5 py-0.5 lg:px-2 lg:py-1 rounded-lg hover:bg-primary/50 transition-colors"
                     onClick={handleProfileDropdown}
                   >
-                    <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center text-dark font-bold text-sm">
+                    <div className="w-5 h-5 lg:w-6 lg:h-6 bg-secondary rounded-full flex items-center justify-center text-dark font-bold text-[10px] lg:text-xs">
                       {getUserInitials()}
                     </div>
-                    <span className="font-medium max-w-32 truncate">{getUserDisplayName()}</span>
-                    <i className={`fas fa-chevron-down text-xs transition-transform ${showProfileDropdown ? 'rotate-180' : ''}`}></i>
+                    <span className="font-medium max-w-16 lg:max-w-24 truncate text-[10px] lg:text-xs">{getUserDisplayName()}</span>
+                    <i className={`fas fa-chevron-down text-[8px] lg:text-xs transition-transform ${showProfileDropdown ? 'rotate-180' : ''}`}></i>
                   </div>
 
                   {showProfileDropdown && (
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-primary/95 backdrop-blur-sm border border-secondary rounded-lg shadow-neon z-50">
-                      <div className="py-2">
-                        <div className="px-4 py-2 border-b border-gray-600">
-                          <p className="font-medium text-light truncate">{getUserDisplayName()}</p>
-                          <p className="text-xs text-gray-300 truncate">{currentUser.email}</p>
+                    <div className="absolute right-0 top-full mt-1 w-32 lg:w-40 bg-primary/95 backdrop-blur-sm border border-secondary rounded-lg shadow-neon z-50">
+                      <div className="py-1">
+                        <div className="px-2 py-1 border-b border-gray-600">
+                          <p className="font-medium text-light truncate text-xs">{getUserDisplayName()}</p>
+                          <p className="text-[10px] text-gray-300 truncate">{currentUser.email}</p>
                         </div>
-                        <Link to="/dashboard" className="flex items-center gap-3 px-4 py-2 text-light hover:bg-secondary/20 hover:text-secondary transition-colors">
-                          <i className="fas fa-tachometer-alt w-5 text-center"></i><span>Dashboard</span>
+                        <Link to="/dashboard" className="flex items-center gap-2 px-2 py-1 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs">
+                          <i className="fas fa-tachometer-alt w-4 text-center text-[10px]"></i><span>Dashboard</span>
                         </Link>
-                        <Link to="/orders" className="flex items-center gap-3 px-4 py-2 text-light hover:bg-secondary/20 hover:text-secondary transition-colors">
-                          <i className="fas fa-shopping-bag w-5 text-center"></i><span>My Orders</span>
+                        <Link to="/orders" className="flex items-center gap-2 px-2 py-1 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs">
+                          <i className="fas fa-shopping-bag w-4 text-center text-[10px]"></i><span>My Orders</span>
                         </Link>
-                        <Link to="/settings" className="flex items-center gap-3 px-4 py-2 text-light hover:bg-secondary/20 hover:text-secondary transition-colors">
-                          <i className="fas fa-cog w-5 text-center"></i><span>Settings</span>
+                        <Link to="/settings" className="flex items-center gap-2 px-2 py-1 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs">
+                          <i className="fas fa-cog w-4 text-center text-[10px]"></i><span>Settings</span>
                         </Link>
                         <div className="border-t border-gray-600 my-1"></div>
-                        <a href="#signout" onClick={handleSignOutClick} className="flex items-center gap-3 px-4 py-2 text-light hover:bg-red-500/20 hover:text-red-400 transition-colors">
-                          <i className="fas fa-sign-out-alt w-5 text-center"></i><span>Sign Out</span>
+                        <a href="#signout" onClick={handleSignOutClick} className="flex items-center gap-2 px-2 py-1 text-light hover:bg-red-500/20 hover:text-red-400 transition-colors text-xs">
+                          <i className="fas fa-sign-out-alt w-4 text-center text-[10px]"></i><span>Sign Out</span>
                         </a>
                       </div>
                     </div>
@@ -302,28 +318,28 @@ const Header = ({
         </div>
       </div>
 
-      {/* Mobile Menu (profile removed from here) */}
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 top-16 z-40 md:hidden">
+        <div className="fixed inset-0 top-10 sm:top-12 md:top-14 z-40 md:hidden">
           <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => toggleMobileMenu(false)}></div>
-          <nav className="absolute top-0 left-0 right-0 bg-primary/95 backdrop-blur-sm border-t border-secondary shadow-neon max-h-[75vh] overflow-y-auto">
-            <ul className="flex flex-col items-center gap-0 px-4 py-2">
-              <li className="w-full"><Link to="/home" className={`font-medium block py-4 px-4 rounded-lg transition-all duration-200 ${isMobileActivePage("home")}`} onClick={(e) => { handleNavClick("home", e); toggleMobileMenu(false); }}>Home</Link></li>
-              <li className="w-full"><Link to="/about" className={`font-medium block py-4 px-4 rounded-lg transition-all duration-200 ${isMobileActivePage("about")}`} onClick={(e) => { handleNavClick("about", e); toggleMobileMenu(false); }}>About</Link></li>
-              <li className="w-full"><Link to="/services" className={`font-medium block py-4 px-4 rounded-lg transition-all duration-200 ${isMobileActivePage("services")}`} onClick={(e) => { handleNavClick("services", e); toggleMobileMenu(false); }}>Services</Link></li>
-              <li className="w-full"><Link to="/industries" className={`font-medium block py-4 px-4 rounded-lg transition-all duration-200 ${isMobileActivePage("industries")}`} onClick={(e) => { handleNavClick("industries", e); toggleMobileMenu(false); }}>Industries</Link></li>
-              <li className="w-full"><Link to="/leadership" className={`font-medium block py-4 px-4 rounded-lg transition-all duration-200 ${isMobileActivePage("leadership")}`} onClick={(e) => { handleNavClick("leadership", e); toggleMobileMenu(false); }}>Leadership</Link></li>
-              <li className="w-full"><Link to="/quote-request" className={`font-medium block py-4 px-4 rounded-lg transition-all duration-200 ${isMobileActivePage("quote-request")}`} onClick={(e) => { handleNavClick("quote-request", e); toggleMobileMenu(false); }}>Feedback</Link></li>
-              <li className="w-full"><Link to="/blog" className={`font-medium block py-4 px-4 rounded-lg transition-all duration-200 ${isMobileActivePage("blog")}`} onClick={(e) => { handleNavClick("blog", e); toggleMobileMenu(false); }}>Blog</Link></li>
-              <li className="w-full"><Link to="/join-us" className={`font-medium block py-4 px-4 rounded-lg transition-all duration-200 ${isMobileActivePage("join-us")}`} onClick={(e) => { handleNavClick("join-us", e); toggleMobileMenu(false); }}>Join Us</Link></li>
-              <li className="w-full"><Link to="/contact" className={`font-medium block py-4 px-4 rounded-lg transition-all duration-200 ${isMobileActivePage("contact")}`} onClick={(e) => { handleNavClick("contact", e); toggleMobileMenu(false); }}>Contact</Link></li>
+          <nav className="absolute top-0 left-0 right-0 bg-primary/95 backdrop-blur-sm border-t border-secondary shadow-neon max-h-[80vh] overflow-y-auto">
+            <ul className="flex flex-col items-center gap-0 px-1.5 sm:px-3 py-1">
+              <li className="w-full"><Link to="/home" className={`font-medium block py-2 sm:py-2.5 px-2 rounded-lg transition-all duration-200 text-xs sm:text-sm ${isMobileActivePage("home")}`} onClick={(e) => { handleNavClick("home", e); toggleMobileMenu(false); }}>Home</Link></li>
+              <li className="w-full"><Link to="/about" className={`font-medium block py-2 sm:py-2.5 px-2 rounded-lg transition-all duration-200 text-xs sm:text-sm ${isMobileActivePage("about")}`} onClick={(e) => { handleNavClick("about", e); toggleMobileMenu(false); }}>About</Link></li>
+              <li className="w-full"><Link to="/services" className={`font-medium block py-2 sm:py-2.5 px-2 rounded-lg transition-all duration-200 text-xs sm:text-sm ${isMobileActivePage("services")}`} onClick={(e) => { handleNavClick("services", e); toggleMobileMenu(false); }}>Services</Link></li>
+              <li className="w-full"><Link to="/industries" className={`font-medium block py-2 sm:py-2.5 px-2 rounded-lg transition-all duration-200 text-xs sm:text-sm ${isMobileActivePage("industries")}`} onClick={(e) => { handleNavClick("industries", e); toggleMobileMenu(false); }}>Industries</Link></li>
+              <li className="w-full"><Link to="/leadership" className={`font-medium block py-2 sm:py-2.5 px-2 rounded-lg transition-all duration-200 text-xs sm:text-sm ${isMobileActivePage("leadership")}`} onClick={(e) => { handleNavClick("leadership", e); toggleMobileMenu(false); }}>Leadership</Link></li>
+              <li className="w-full"><Link to="/quote-request" className={`font-medium block py-2 sm:py-2.5 px-2 rounded-lg transition-all duration-200 text-xs sm:text-sm ${isMobileActivePage("quote-request")}`} onClick={(e) => { handleNavClick("quote-request", e); toggleMobileMenu(false); }}>Feedback</Link></li>
+              <li className="w-full"><Link to="/blog" className={`font-medium block py-2 sm:py-2.5 px-2 rounded-lg transition-all duration-200 text-xs sm:text-sm ${isMobileActivePage("blog")}`} onClick={(e) => { handleNavClick("blog", e); toggleMobileMenu(false); }}>Blog</Link></li>
+              <li className="w-full"><Link to="/join-us" className={`font-medium block py-2 sm:py-2.5 px-2 rounded-lg transition-all duration-200 text-xs sm:text-sm ${isMobileActivePage("join-us")}`} onClick={(e) => { handleNavClick("join-us", e); toggleMobileMenu(false); }}>Join Us</Link></li>
+              <li className="w-full"><Link to="/contact" className={`font-medium block py-2 sm:py-2.5 px-2 rounded-lg transition-all duration-200 text-xs sm:text-sm ${isMobileActivePage("contact")}`} onClick={(e) => { handleNavClick("contact", e); toggleMobileMenu(false); }}>Contact</Link></li>
 
-              {/* Mobile Auth (only Sign In / Sign Up when not logged in) */}
+              {/* Mobile Auth */}
               {!currentUser && (
-                <li className="w-full pt-4">
-                  <div className="flex flex-col gap-3">
-                    <Link to="/signin" className="font-medium hover:text-secondary transition-colors block py-3 px-4 rounded-lg text-center border-2 border-secondary hover:bg-secondary/10 transition-all duration-200">Sign In</Link>
-                    <Link to="/signup" className="font-medium bg-secondary text-dark block py-3 px-4 rounded-lg hover:bg-accent transition-colors text-center transition-all duration-200">Sign Up</Link>
+                <li className="w-full pt-2">
+                  <div className="flex flex-col gap-1 sm:gap-1.5">
+                    <Link to="/signin" className="font-medium hover:text-secondary transition-colors block py-1.5 px-2 rounded-lg text-center border border-secondary hover:bg-secondary/10 transition-all duration-200 text-xs">Sign In</Link>
+                    <Link to="/signup" className="font-medium bg-secondary text-dark block py-1.5 px-2 rounded-lg hover:bg-accent transition-colors text-center transition-all duration-200 text-xs">Sign Up</Link>
                   </div>
                 </li>
               )}
@@ -332,27 +348,27 @@ const Header = ({
         </div>
       )}
 
-      {/* Profile dropdown for mobile avatar (outside menu) */}
+      {/* Profile dropdown for mobile avatar */}
       {currentUser && showProfileDropdown && (
-        <div className="fixed top-16 right-4 md:hidden z-50 profile-dropdown">
-          <div className="w-48 bg-primary/95 backdrop-blur-sm border border-secondary rounded-lg shadow-neon">
-            <div className="py-2">
-              <div className="px-4 py-2 border-b border-gray-600">
-                <p className="font-medium text-light truncate">{getUserDisplayName()}</p>
-                <p className="text-xs text-gray-300 truncate">{currentUser.email}</p>
+        <div className="fixed top-10 sm:top-12 right-1.5 sm:right-2 md:hidden z-50 profile-dropdown">
+          <div className="w-32 sm:w-36 bg-primary/95 backdrop-blur-sm border border-secondary rounded-lg shadow-neon">
+            <div className="py-1">
+              <div className="px-2 py-1 border-b border-gray-600">
+                <p className="font-medium text-light truncate text-xs">{getUserDisplayName()}</p>
+                <p className="text-[10px] text-gray-300 truncate">{currentUser.email}</p>
               </div>
-              <Link to="/dashboard" className="flex items-center gap-3 px-4 py-2 text-light hover:bg-secondary/20 hover:text-secondary transition-colors">
-                <i className="fas fa-tachometer-alt w-5 text-center"></i><span>Dashboard</span>
+              <Link to="/dashboard" className="flex items-center gap-2 px-2 py-1 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs">
+                <i className="fas fa-tachometer-alt w-4 text-center text-[10px]"></i><span>Dashboard</span>
               </Link>
-              <Link to="/orders" className="flex items-center gap-3 px-4 py-2 text-light hover:bg-secondary/20 hover:text-secondary transition-colors">
-                <i className="fas fa-shopping-bag w-5 text-center"></i><span>My Orders</span>
+              <Link to="/orders" className="flex items-center gap-2 px-2 py-1 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs">
+                <i className="fas fa-shopping-bag w-4 text-center text-[10px]"></i><span>My Orders</span>
               </Link>
-              <Link to="/settings" className="flex items-center gap-3 px-4 py-2 text-light hover:bg-secondary/20 hover:text-secondary transition-colors">
-                <i className="fas fa-cog w-5 text-center"></i><span>Settings</span>
+              <Link to="/settings" className="flex items-center gap-2 px-2 py-1 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs">
+                <i className="fas fa-cog w-4 text-center text-[10px]"></i><span>Settings</span>
               </Link>
               <div className="border-t border-gray-600 my-1"></div>
-              <a href="#signout" onClick={handleSignOutClick} className="flex items-center gap-3 px-4 py-2 text-light hover:bg-red-500/20 hover:text-red-400 transition-colors">
-                <i className="fas fa-sign-out-alt w-5 text-center"></i><span>Sign Out</span>
+              <a href="#signout" onClick={handleSignOutClick} className="flex items-center gap-2 px-2 py-1 text-light hover:bg-red-500/20 hover:text-red-400 transition-colors text-xs">
+                <i className="fas fa-sign-out-alt w-4 text-center text-[10px]"></i><span>Sign Out</span>
               </a>
             </div>
           </div>

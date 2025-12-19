@@ -25,7 +25,7 @@ const QuoteRequest = () => {
     <section id="quote-request" className="py-20 bg-gradient-to-b from-white to-cyan-50">
       <div className="container mx-auto px-6 max-w-2xl">
         <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-12">
-          Get a Custom Quote
+          Feedback
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
