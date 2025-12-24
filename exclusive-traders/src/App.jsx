@@ -6,6 +6,7 @@ import {
   useNavigate,
   useLocation,
   Navigate,
+  Outlet,
 } from 'react-router-dom';
 import { auth } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -30,13 +31,13 @@ import Leadership from './components/Leadership';
 import Contactus from './components/Contactus';
 
 // ---------- Admin Components ----------
-import AdminDashboard from './components/admin/AdminDashboard';
-import AdminProducts from './components/admin/AdminProducts';
-import AdminOrders from './components/admin/AdminOrders';
-import AdminUsers from './components/admin/AdminUsers';
-import AdminSettings from './components/admin/AdminSettings';
-import AdminLayout from './components/Admin/Adminlayout';
-import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
+import AdminDashboard from './components/Admin/AdminDashboard';
+import AdminProducts from './components/Admin/AdminProducts';
+import AdminOrders from './components/Admin/AdminOrders';
+import AdminUsers from './components/Admin/AdminUsers';
+import AdminHistory from './components/Admin/AdminHistory';
+import AdminLayout from './components/Admin/AdminLayout'; // FIXED: Changed from Adminlayout to AdminLayout
+import ProtectedAdminRoute from './components/Admin/ProtectedAdminRoute';
 
 // ---------- Placeholder pages (replace with real ones) ----------
 
@@ -96,9 +97,9 @@ function App() {
   // Auth listener
   // -----------------------------------------------------------------
   useEffect(() => {
-    setIsMounted(true);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
+  setIsMounted(true);
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (user) {
         setCurrentUser(user);
         localStorage.setItem(
           'currentUser',
@@ -348,7 +349,7 @@ function App() {
 
           {/* ========== ADMIN ROUTES ========== */}
           <Route
-            path="/admin/*"  // Changed to /admin/* to catch all admin sub-routes
+            path="/admin"
             element={
               <ProtectedAdminRoute currentUser={currentUser}>
                 <AdminLayout
@@ -359,12 +360,13 @@ function App() {
               </ProtectedAdminRoute>
             }
           >
-            <Route index element={<AdminDashboard />} />
+            {/* The Outlet in AdminLayout will render these child routes */}
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="users" element={<AdminUsers />} />
-            <Route path="settings" element={<AdminSettings />} />
+            <Route path="history" element={<AdminHistory />} /> {/* FIXED: Changed from "settings" to "history" */}
           </Route>
 
           {/* Default redirect */}

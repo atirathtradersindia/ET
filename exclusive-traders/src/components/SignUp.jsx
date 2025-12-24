@@ -1,16 +1,80 @@
-// SignUp.jsx - Block admin email signup + Phone Number
-import { useState } from "react";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth, db } from "../firebase";
+// SignUp.jsx - Saves user data to users collection, no Firebase Auth account creation
+import { useState, useRef } from "react";
+import { db } from "../firebase";
 import { ref, set } from "firebase/database";
 
-const SignUp = ({ navigateToPage, onAuthSuccess }) => {
+const SignUp = ({ navigateToPage }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [countryCode, setCountryCode] = useState("+91");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [activeField, setActiveField] = useState("displayName"); // Track which field is active
+
+  // Refs for each input field
+  const displayNameRef = useRef(null);
+  const phoneNumberRef = useRef(null);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+  const confirmPasswordRef = useRef(null);
+
+  // Country options
+  const countryOptions = [
+    { value: "+91", flag: "🇮🇳", name: "India", length: 10 },
+    { value: "+1", flag: "🇺🇸", name: "USA", length: 10 },
+    { value: "+44", flag: "🇬🇧", name: "UK", length: 10 },
+    { value: "+971", flag: "🇦🇪", name: "UAE", length: 9 },
+    { value: "+61", flag: "🇦🇺", name: "Australia", length: 9 },
+    { value: "+98", flag: "🇮🇷", name: "Iran", length: 10 },
+  ];
+
+  // Get current country's phone number length
+  const getCurrentCountryLength = () => {
+    const country = countryOptions.find(opt => opt.value === countryCode);
+    return country ? country.length : 10;
+  };
+
+  const handlePhoneNumberChange = (e) => {
+    const value = e.target.value;
+    const maxLength = getCurrentCountryLength();
+    
+    if (/^\d*$/.test(value) && value.length <= maxLength) {
+      setPhoneNumber(value);
+    }
+  };
+
+  // Handle Enter key press to move to next field
+  const handleKeyDown = (e, nextField) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent form submission
+      if (nextField === 'phoneNumber') {
+        phoneNumberRef.current.focus();
+        setActiveField('phoneNumber');
+      } else if (nextField === 'email') {
+        emailRef.current.focus();
+        setActiveField('email');
+      } else if (nextField === 'password') {
+        passwordRef.current.focus();
+        setActiveField('password');
+      } else if (nextField === 'confirmPassword') {
+        confirmPasswordRef.current.focus();
+        setActiveField('confirmPassword');
+      } else if (nextField === 'submit') {
+        // If Enter is pressed on confirm password, submit the form
+        if (isFormValid() && !loading) {
+          handleSubmit(e);
+        }
+      }
+    }
+  };
+
+  // Handle field focus
+  const handleFocus = (fieldName) => {
+    setActiveField(fieldName);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,62 +82,98 @@ const SignUp = ({ navigateToPage, onAuthSuccess }) => {
     setError("");
 
     try {
-      // BLOCK admin email from being used for signup
-      if (email === "admin@exclusivetrader.com") {
-        throw new Error(
-          "This email is reserved for system administrators. Please use a different email."
-        );
+      // Validate password match
+      if (password !== confirmPassword) {
+        throw new Error("Passwords do not match");
       }
 
-      // Create user in Firebase Authentication
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-
-      // Update display name
-      if (displayName) {
-        await updateProfile(user, { displayName });
+      // Validate password length
+      if (password.length < 6) {
+        throw new Error("Password must be at least 6 characters");
       }
 
-      // Store regular user data in database
-      const userRef = ref(db, `users/${user.uid}`);
+      // Get current country's required length
+      const requiredLength = getCurrentCountryLength();
+      
+      // Validate phone number
+      if (phoneNumber.length !== requiredLength) {
+        const country = countryOptions.find(opt => opt.value === countryCode);
+        throw new Error(`Phone number must be exactly ${requiredLength} digits for ${country?.name || 'selected country'}`);
+      }
+
+      // Validate email
+      if (!email || !email.includes("@")) {
+        throw new Error("Please enter a valid email address");
+      }
+
+      // Validate display name
+      if (!displayName.trim()) {
+        throw new Error("Please enter your full name");
+      }
+
+      // BLOCK admin email
+      const normalizedEmail = email.toLowerCase().trim();
+      if (normalizedEmail === "admin@exclusivetrader.com") {
+        throw new Error("This email is reserved for system administrators.");
+      }
+
+      // Generate a unique temporary ID for the user data
+      const tempUserId = `pending_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Store user data in users collection with pending status
+      const userRef = ref(db, `users/${tempUserId}`);
       await set(userRef, {
-        email: user.email,
-        displayName: displayName || "",
-        phoneNumber: phoneNumber || "",
+        email: normalizedEmail,
+        password: password, // Store password for verification on signin
+        displayName: displayName.trim(),
+        phoneNumber: {
+          countryCode,
+          number: phoneNumber,
+          fullNumber: `${countryCode}${phoneNumber}`
+        },
         role: "user",
         isAdmin: false,
-        createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
+        isVerified: false,
         isActive: true,
+        accountStatus: "pending", // Account not created in Firebase Auth yet
+        createdAt: new Date().toISOString(),
+        tempUserId: tempUserId // Store the temp ID for reference
       });
 
-      console.log("✅ Regular user created with phone number");
+      console.log("✅ User data saved to users collection with pending status");
 
-      if (onAuthSuccess) onAuthSuccess();
-      navigateToPage("home");
+      // Store email and tempUserId in localStorage for signin page
+      localStorage.setItem('pending_user_email', normalizedEmail);
+      localStorage.setItem('pending_user_id', tempUserId);
+      
+      // Auto-redirect to signin page immediately
+      navigateToPage("signin");
+
     } catch (err) {
-      console.error("❌ Sign up error:", err.code);
-
-      switch (err.code) {
-        case "auth/email-already-in-use":
-          setError("Email already in use. Please sign in instead.");
-          break;
-        case "auth/weak-password":
-          setError("Password should be at least 6 characters.");
-          break;
-        case "auth/invalid-email":
-          setError("Invalid email address.");
-          break;
-        default:
-          setError(err.message || "Sign up failed. Please try again.");
-      }
+      console.error("❌ Sign up error:", err);
+      setError(err.message || "Failed to save details. Please try again.");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Get placeholder text
+  const getPhonePlaceholder = () => {
+    const country = countryOptions.find(opt => opt.value === countryCode);
+    const length = country ? country.length : 10;
+    return `${length}-digit phone number`;
+  };
+
+  // Check if form is valid for submission
+  const isFormValid = () => {
+    return (
+      displayName.trim() &&
+      email &&
+      email.includes("@") &&
+      password.length >= 6 &&
+      password === confirmPassword &&
+      phoneNumber.length === getCurrentCountryLength()
+    );
   };
 
   return (
@@ -88,83 +188,217 @@ const SignUp = ({ navigateToPage, onAuthSuccess }) => {
 
         <form
           onSubmit={handleSubmit}
-          className="bg-primary/50 p-8 rounded-lg border border-secondary shadow-neon"
+          className="bg-dark/80 p-8 rounded-lg border border-secondary shadow-neon backdrop-blur-sm"
         >
           {error && (
-            <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-3 rounded mb-4">
-              <span>{error}</span>
+            <div className="mb-4 p-4 bg-red-500/20 border border-red-500 text-red-300 rounded-lg">
+              <div className="flex items-center">
+                <i className="fas fa-exclamation-circle mr-3"></i>
+                <span className="font-medium">{error}</span>
+              </div>
             </div>
           )}
 
           {/* Full Name */}
           <div className="mb-4">
-            <label className="block text-light mb-2">Full Name</label>
+            <label className="block text-light mb-2 font-medium">Full Name</label>
             <input
+              ref={displayNameRef}
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full px-4 py-3 bg-dark border border-gray-600 rounded-lg text-light"
+              onKeyDown={(e) => handleKeyDown(e, 'phoneNumber')}
+              onFocus={() => handleFocus('displayName')}
+              className={`w-full px-4 py-3 bg-dark border rounded-lg text-light focus:outline-none transition-colors ${
+                activeField === 'displayName' ? 'border-secondary' : 'border-gray-600'
+              }`}
               placeholder="Enter your full name"
+              required
+              disabled={loading}
+              autoComplete="name"
             />
+            <div className="mt-1 text-xs text-light/70 flex justify-between">
+              <span>Press Enter to go to next field</span>
+              <span>{displayName.trim() ? '✓' : ''}</span>
+            </div>
           </div>
 
           {/* Phone Number */}
           <div className="mb-4">
-            <label className="block text-light mb-2">Phone Number</label>
-            <input
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              className="w-full px-4 py-3 bg-dark border border-gray-600 rounded-lg text-light"
-              placeholder="Enter your phone number"
-              required
-            />
+            <label className="block text-light mb-2 font-medium">Phone Number</label>
+            <div className="flex gap-2">
+              <div className="relative w-32">
+                <select
+                  value={countryCode}
+                  onChange={(e) => {
+                    setCountryCode(e.target.value);
+                    setPhoneNumber("");
+                  }}
+                  onFocus={() => handleFocus('countryCode')}
+                  className={`w-full px-4 py-3 bg-dark border rounded-lg text-light focus:outline-none appearance-none cursor-pointer ${
+                    activeField === 'countryCode' ? 'border-secondary' : 'border-gray-600'
+                  }`}
+                  disabled={loading}
+                >
+                  {countryOptions.map((country) => (
+                    <option key={country.value} value={country.value} className="bg-dark">
+                      {country.flag} {country.value}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                  <i className="fas fa-chevron-down text-gray-400"></i>
+                </div>
+              </div>
+              
+              <div className="flex-1">
+                <input
+                  ref={phoneNumberRef}
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={handlePhoneNumberChange}
+                  onKeyDown={(e) => handleKeyDown(e, 'email')}
+                  onFocus={() => handleFocus('phoneNumber')}
+                  className={`w-full px-4 py-3 bg-dark border rounded-lg text-light focus:outline-none transition-colors ${
+                    activeField === 'phoneNumber' ? 'border-secondary' : 'border-gray-600'
+                  }`}
+                  placeholder={getPhonePlaceholder()}
+                  required
+                  maxLength={getCurrentCountryLength()}
+                  disabled={loading}
+                  autoComplete="tel"
+                />
+              </div>
+            </div>
+            <div className="mt-1 text-xs text-light/70 flex justify-between">
+              <span>{phoneNumber.length}/{getCurrentCountryLength()} digits</span>
+              <span>{phoneNumber.length === getCurrentCountryLength() ? '✓' : ''}</span>
+            </div>
           </div>
 
           {/* Email */}
           <div className="mb-4">
-            <label className="block text-light mb-2">Email</label>
+            <label className="block text-light mb-2 font-medium">Email Address</label>
             <input
+              ref={emailRef}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-dark border border-gray-600 rounded-lg text-light"
+              onKeyDown={(e) => handleKeyDown(e, 'password')}
+              onFocus={() => handleFocus('email')}
+              className={`w-full px-4 py-3 bg-dark border rounded-lg text-light focus:outline-none transition-colors ${
+                activeField === 'email' ? 'border-secondary' : 'border-gray-600'
+              }`}
               placeholder="Enter your email"
               required
+              disabled={loading}
+              autoComplete="email"
             />
+            <div className="mt-1 text-xs text-light/70 flex justify-between">
+              <span>Press Enter to go to next field</span>
+              <span>{email.includes("@") ? '✓' : ''}</span>
+            </div>
           </div>
 
           {/* Password */}
-          <div className="mb-6">
-            <label className="block text-light mb-2">Password</label>
+          <div className="mb-4">
+            <label className="block text-light mb-2 font-medium">Password</label>
             <input
+              ref={passwordRef}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-dark border border-gray-600 rounded-lg text-light"
-              placeholder="Create a password"
+              onKeyDown={(e) => handleKeyDown(e, 'confirmPassword')}
+              onFocus={() => handleFocus('password')}
+              className={`w-full px-4 py-3 bg-dark border rounded-lg text-light focus:outline-none transition-colors ${
+                activeField === 'password' ? 'border-secondary' : 'border-gray-600'
+              }`}
+              placeholder="Create a password (min. 6 characters)"
               required
+              minLength={6}
+              disabled={loading}
+              autoComplete="new-password"
             />
+            <div className="mt-1 text-xs text-light/70 flex justify-between">
+              <span>{password.length}/6 characters minimum</span>
+              <span>{password.length >= 6 ? '✓' : ''}</span>
+            </div>
           </div>
 
-          {/* Submit */}
+          {/* Confirm Password */}
+          <div className="mb-6">
+            <label className="block text-light mb-2 font-medium">Confirm Password</label>
+            <input
+              ref={confirmPasswordRef}
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              onKeyDown={(e) => handleKeyDown(e, 'submit')}
+              onFocus={() => handleFocus('confirmPassword')}
+              className={`w-full px-4 py-3 bg-dark border rounded-lg text-light focus:outline-none transition-colors ${
+                confirmPassword && password !== confirmPassword
+                  ? 'border-red-500 focus:border-red-500'
+                  : activeField === 'confirmPassword'
+                  ? 'border-secondary'
+                  : 'border-gray-600'
+              }`}
+              placeholder="Confirm your password"
+              required
+              minLength={6}
+              disabled={loading}
+              autoComplete="new-password"
+            />
+            <div className="mt-1 text-xs text-light/70 flex justify-between">
+              <span>Press Enter to submit form</span>
+              <span>{password && password === confirmPassword && password.length >= 6 ? '✓' : ''}</span>
+            </div>
+            {confirmPassword && password !== confirmPassword && (
+              <p className="text-red-400 text-sm mt-1 flex items-center">
+                <i className="fas fa-exclamation-triangle mr-1"></i>
+                Passwords do not match
+              </p>
+            )}
+            {confirmPassword && password === confirmPassword && password.length >= 6 && (
+              <p className="text-green-400 text-sm mt-1 flex items-center">
+                <i className="fas fa-check-circle mr-1"></i>
+                Passwords match
+              </p>
+            )}
+          </div>
+
+          {/* Submit Button */}
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-secondary text-dark font-bold py-3 rounded-lg hover:bg-accent disabled:opacity-50"
+            disabled={loading || !isFormValid()}
+            className={`w-full bg-secondary text-dark font-bold py-3 rounded-lg transition-all duration-300 ${
+              loading || !isFormValid()
+                ? 'opacity-50 cursor-not-allowed' 
+                : 'hover:bg-accent hover:scale-[1.02] active:scale-[0.98]'
+            }`}
           >
-            {loading ? "Creating Account..." : "Sign Up"}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <i className="fas fa-spinner fa-spin"></i>
+                Signing Up...
+              </span>
+            ) : (
+              "Sign Up"
+            )}
           </button>
 
-          <div className="text-center mt-4 text-light">
-            Already have an account?{" "}
-            <button
-              type="button"
-              onClick={() => navigateToPage("signin")}
-              className="text-secondary font-medium"
-            >
-              Sign In
-            </button>
+          {/* Sign In Link */}
+          <div className="text-center mt-6 pt-6 border-t border-gray-700">
+            <p className="text-light">
+              Already saved details?{" "}
+              <button
+                type="button"
+                onClick={() => navigateToPage("signin")}
+                className="text-secondary font-medium hover:text-accent transition-colors"
+                disabled={loading}
+              >
+                Go to Sign In
+              </button>
+            </p>
           </div>
         </form>
       </div>

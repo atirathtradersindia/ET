@@ -41,9 +41,9 @@ const Header = ({
     if (path === '/leadership') return 'leadership';
     if (path === '/signin') return 'signin';
     if (path === '/signup') return 'signup';
-    if (path === '/dashboard') return 'dashboard';
     if (path === '/orders') return 'orders';
     if (path === '/settings') return 'settings';
+    if (path === '/account') return 'account';
     return 'home';
   };
 
@@ -195,6 +195,38 @@ const Header = ({
     return currentUser.displayName || currentUser.email?.split('@')[0] || "User";
   };
 
+  // Get user role (mock function - you can replace with actual logic)
+  const getUserRole = () => {
+    if (!currentUser) return "Guest";
+    // Check if email contains admin or system administrator keywords
+    const email = currentUser.email?.toLowerCase() || "";
+    if (email.includes('admin') || email.includes('system') || email.includes('administrator')) {
+      return "System Administrator";
+    }
+    if (email.includes('manager')) {
+      return "Manager";
+    }
+    if (email.includes('support')) {
+      return "Support Staff";
+    }
+    return "Registered User";
+  };
+
+  // Get user account details for display
+  const getUserDetails = () => {
+    if (!currentUser) return null;
+    
+    return {
+      displayName: currentUser.displayName || "Not set",
+      email: currentUser.email || "Not available",
+      role: getUserRole(),
+      accountId: currentUser.uid?.substring(0, 12) || "N/A",
+      emailVerified: currentUser.emailVerified || false,
+      createdAt: currentUser.metadata?.creationTime || "Unknown",
+      lastLogin: currentUser.metadata?.lastSignInTime || "Unknown",
+    };
+  };
+
   return (
     <header className="bg-primary/90 text-light py-1 md:py-3 sticky top-0 z-50 shadow-neon backdrop-blur-sm w-full">
       <div className="w-full flex justify-between items-center px-1.5 sm:px-3 md:px-4 lg:px-6">
@@ -289,24 +321,51 @@ const Header = ({
                   </div>
 
                   {showProfileDropdown && (
-                    <div className="absolute right-0 top-full mt-1 w-32 lg:w-40 bg-primary/95 backdrop-blur-sm border border-secondary rounded-lg shadow-neon z-50">
+                    <div className="absolute right-0 top-full mt-1 w-48 lg:w-56 bg-primary/95 backdrop-blur-sm border border-secondary rounded-lg shadow-neon z-50">
                       <div className="py-1">
-                        <div className="px-2 py-1 border-b border-gray-600">
-                          <p className="font-medium text-light truncate text-xs">{getUserDisplayName()}</p>
-                          <p className="text-[10px] text-gray-300 truncate">{currentUser.email}</p>
+                        {/* User Info Header */}
+                        <div className="px-3 py-2 bg-secondary/10 border-b border-secondary">
+                          <p className="font-bold text-secondary text-sm truncate">{getUserRole()}</p>
+                          <p className="text-[10px] text-gray-300 truncate mt-0.5">{currentUser.email}</p>
                         </div>
-                        <Link to="/dashboard" className="flex items-center gap-2 px-2 py-1 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs">
-                          <i className="fas fa-tachometer-alt w-4 text-center text-[10px]"></i><span>Dashboard</span>
+                        
+                        {/* Account Menu Items */}
+                        <Link 
+                          to="/account" 
+                          className="flex items-center gap-2 px-3 py-2 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs border-b border-gray-700"
+                          onClick={() => setShowProfileDropdown(false)}
+                        >
+                          <i className="fas fa-user-circle w-4 text-center text-[10px]"></i>
+                          <span className="font-medium">My Account</span>
                         </Link>
-                        <Link to="/orders" className="flex items-center gap-2 px-2 py-1 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs">
-                          <i className="fas fa-shopping-bag w-4 text-center text-[10px]"></i><span>My Orders</span>
+                        
+                        <Link 
+                          to="/orders" 
+                          className="flex items-center gap-2 px-3 py-2 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs border-b border-gray-700"
+                          onClick={() => setShowProfileDropdown(false)}
+                        >
+                          <i className="fas fa-shopping-bag w-4 text-center text-[10px]"></i>
+                          <span className="font-medium">My Orders</span>
                         </Link>
-                        <Link to="/settings" className="flex items-center gap-2 px-2 py-1 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs">
-                          <i className="fas fa-cog w-4 text-center text-[10px]"></i><span>Settings</span>
+                        
+                        <Link 
+                          to="/settings" 
+                          className="flex items-center gap-2 px-3 py-2 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs border-b border-gray-700"
+                          onClick={() => setShowProfileDropdown(false)}
+                        >
+                          <i className="fas fa-cog w-4 text-center text-[10px]"></i>
+                          <span className="font-medium">Settings</span>
                         </Link>
-                        <div className="border-t border-gray-600 my-1"></div>
-                        <a href="#signout" onClick={handleSignOutClick} className="flex items-center gap-2 px-2 py-1 text-light hover:bg-red-500/20 hover:text-red-400 transition-colors text-xs">
-                          <i className="fas fa-sign-out-alt w-4 text-center text-[10px]"></i><span>Sign Out</span>
+                        
+                        <div className="border-t border-gray-700 my-1"></div>
+                        
+                        <a 
+                          href="#signout" 
+                          onClick={handleSignOutClick} 
+                          className="flex items-center gap-2 px-3 py-2 text-light hover:bg-red-500/20 hover:text-red-400 transition-colors text-xs"
+                        >
+                          <i className="fas fa-sign-out-alt w-4 text-center text-[10px]"></i>
+                          <span className="font-medium">Sign Out</span>
                         </a>
                       </div>
                     </div>
@@ -351,24 +410,51 @@ const Header = ({
       {/* Profile dropdown for mobile avatar */}
       {currentUser && showProfileDropdown && (
         <div className="fixed top-10 sm:top-12 right-1.5 sm:right-2 md:hidden z-50 profile-dropdown">
-          <div className="w-32 sm:w-36 bg-primary/95 backdrop-blur-sm border border-secondary rounded-lg shadow-neon">
+          <div className="w-40 sm:w-48 bg-primary/95 backdrop-blur-sm border border-secondary rounded-lg shadow-neon">
             <div className="py-1">
-              <div className="px-2 py-1 border-b border-gray-600">
-                <p className="font-medium text-light truncate text-xs">{getUserDisplayName()}</p>
-                <p className="text-[10px] text-gray-300 truncate">{currentUser.email}</p>
+              {/* User Info Header for Mobile */}
+              <div className="px-3 py-2 bg-secondary/10 border-b border-secondary">
+                <p className="font-bold text-secondary text-sm truncate">{getUserRole()}</p>
+                <p className="text-[10px] text-gray-300 truncate mt-0.5">{currentUser.email}</p>
               </div>
-              <Link to="/dashboard" className="flex items-center gap-2 px-2 py-1 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs">
-                <i className="fas fa-tachometer-alt w-4 text-center text-[10px]"></i><span>Dashboard</span>
+              
+              {/* Account Menu Items for Mobile */}
+              <Link 
+                to="/account" 
+                className="flex items-center gap-2 px-3 py-2 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs border-b border-gray-700"
+                onClick={() => setShowProfileDropdown(false)}
+              >
+                <i className="fas fa-user-circle w-4 text-center text-[10px]"></i>
+                <span className="font-medium">My Account</span>
               </Link>
-              <Link to="/orders" className="flex items-center gap-2 px-2 py-1 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs">
-                <i className="fas fa-shopping-bag w-4 text-center text-[10px]"></i><span>My Orders</span>
+              
+              <Link 
+                to="/orders" 
+                className="flex items-center gap-2 px-3 py-2 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs border-b border-gray-700"
+                onClick={() => setShowProfileDropdown(false)}
+              >
+                <i className="fas fa-shopping-bag w-4 text-center text-[10px]"></i>
+                <span className="font-medium">My Orders</span>
               </Link>
-              <Link to="/settings" className="flex items-center gap-2 px-2 py-1 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs">
-                <i className="fas fa-cog w-4 text-center text-[10px]"></i><span>Settings</span>
+              
+              <Link 
+                to="/settings" 
+                className="flex items-center gap-2 px-3 py-2 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-xs border-b border-gray-700"
+                onClick={() => setShowProfileDropdown(false)}
+              >
+                <i className="fas fa-cog w-4 text-center text-[10px]"></i>
+                <span className="font-medium">Settings</span>
               </Link>
-              <div className="border-t border-gray-600 my-1"></div>
-              <a href="#signout" onClick={handleSignOutClick} className="flex items-center gap-2 px-2 py-1 text-light hover:bg-red-500/20 hover:text-red-400 transition-colors text-xs">
-                <i className="fas fa-sign-out-alt w-4 text-center text-[10px]"></i><span>Sign Out</span>
+              
+              <div className="border-t border-gray-700 my-1"></div>
+              
+              <a 
+                href="#signout" 
+                onClick={handleSignOutClick} 
+                className="flex items-center gap-2 px-3 py-2 text-light hover:bg-red-500/20 hover:text-red-400 transition-colors text-xs"
+              >
+                <i className="fas fa-sign-out-alt w-4 text-center text-[10px]"></i>
+                <span className="font-medium">Sign Out</span>
               </a>
             </div>
           </div>

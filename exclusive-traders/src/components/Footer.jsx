@@ -1,3 +1,4 @@
+// Footer.jsx
 import logo from '../assets/logo.png'
 
 const Footer = ({ navigateToSection }) => {
@@ -44,7 +45,7 @@ const Footer = ({ navigateToSection }) => {
                 <i className="fab fa-twitter text-xs sm:text-sm"></i>
               </a>
               <a 
-                href="https://www.linkedin.com/company/110183309"
+                href="https://www.linkedin.com/company/exclusive-trader/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-secondary hover:shadow-neon flex-shrink-0"
@@ -141,12 +142,6 @@ const Footer = ({ navigateToSection }) => {
                 <i className="fas fa-envelope text-secondary mt-1 flex-shrink-0"></i> 
                 <span className="text-white text-xs sm:text-sm break-all">
                   fmcg@exclusivetrader.co.uk
-                </span>
-              </li>
-              <li className="flex items-center gap-2 sm:gap-3">
-                <i className="fas fa-clock text-secondary flex-shrink-0"></i> 
-                <span className="text-white text-xs sm:text-sm">
-                  Mon - Fri: 9:00 AM - 6:00 PM
                 </span>
               </li>
             </ul>

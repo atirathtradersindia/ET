@@ -71,58 +71,65 @@ const AdminProducts = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050B14] text-white p-6 space-y-6">
-      {/* HEADER */}
-      <div className="flex justify-between items-center">
+    <div className="min-h-screen bg-[#050B14] text-white p-4 md:p-6 space-y-6">
+      {/* HEADER - Responsive */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#00F5C8]">
+          <h1 className="text-2xl md:text-3xl font-bold text-[#00F5C8]">
             Product Management
           </h1>
-          <p className="text-gray-400">
+          <p className="text-gray-400 text-sm md:text-base">
             Manage your products and inventory
           </p>
         </div>
 
-        <button className="flex items-center bg-[#00F5C8] text-[#050B14] px-4 py-2 rounded-lg font-medium hover:opacity-90">
+        <button className="flex items-center justify-center bg-[#00F5C8] text-[#050B14] px-4 py-2 rounded-lg font-medium hover:opacity-90 w-full md:w-auto">
           <FaPlus className="mr-2" />
           Add Product
         </button>
       </div>
 
-      {/* FILTERS */}
+      {/* FILTERS - Responsive Grid */}
       <div className="bg-[#0B1C2D] border border-[#00F5C8]/20 rounded-xl p-4 shadow-lg">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <FaSearch className="absolute left-3 top-3 text-gray-400" />
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          {/* Search - Full width on mobile, spans 6 on desktop */}
+          <div className="md:col-span-6 relative">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#050B14] border border-[#00F5C8]/30 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#00F5C8]"
+              className="w-full bg-[#050B14] border border-[#00F5C8]/30 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#00F5C8] text-sm md:text-base"
             />
           </div>
 
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="bg-[#050B14] border border-[#00F5C8]/30 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#00F5C8]"
-          >
-            {categories.map((cat) => (
-              <option key={cat} value={cat} className="bg-[#050B14]">
-                {cat === "all" ? "All Categories" : cat}
-              </option>
-            ))}
-          </select>
+          {/* Category Filter - Full width on mobile, spans 4 on desktop */}
+          <div className="md:col-span-4">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full bg-[#050B14] border border-[#00F5C8]/30 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#00F5C8] text-sm md:text-base"
+            >
+              {categories.map((cat) => (
+                <option key={cat} value={cat} className="bg-[#050B14]">
+                  {cat === "all" ? "All Categories" : cat}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <button className="flex items-center px-4 py-2 border border-[#00F5C8]/30 rounded-lg hover:bg-[#00F5C8]/10">
-            <FaFilter className="mr-2 text-[#00F5C8]" />
-            Filters
-          </button>
+          {/* Filter Button - Full width on mobile, spans 2 on desktop */}
+          <div className="md:col-span-2">
+            <button className="w-full flex items-center justify-center px-4 py-2 border border-[#00F5C8]/30 rounded-lg hover:bg-[#00F5C8]/10 text-sm md:text-base">
+              <FaFilter className="mr-2 text-[#00F5C8]" />
+              <span className="hidden md:inline">Filters</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* TABLE */}
+      {/* TABLE - Responsive with horizontal scroll on mobile */}
       <div className="bg-[#0B1C2D] border border-[#00F5C8]/20 rounded-xl shadow-lg overflow-hidden">
         {loading ? (
           <div className="p-10 text-center text-[#00F5C8]">
@@ -130,19 +137,31 @@ const AdminProducts = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead className="bg-[#050B14] text-gray-400 text-sm">
+            <table className="min-w-full divide-y divide-[#00F5C8]/10">
+              <thead className="bg-[#050B14]">
                 <tr>
-                  <th className="px-6 py-3 text-left">Product</th>
-                  <th className="px-6 py-3 text-left">Category</th>
-                  <th className="px-6 py-3 text-left">Price</th>
-                  <th className="px-6 py-3 text-left">Stock</th>
-                  <th className="px-6 py-3 text-left">Status</th>
-                  <th className="px-6 py-3 text-left">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs md:text-sm font-medium text-gray-400 uppercase tracking-wider">
+                    Product
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs md:text-sm font-medium text-gray-400 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs md:text-sm font-medium text-gray-400 uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs md:text-sm font-medium text-gray-400 uppercase tracking-wider">
+                    Stock
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs md:text-sm font-medium text-gray-400 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs md:text-sm font-medium text-gray-400 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
-              <tbody>
+              <tbody className="divide-y divide-[#00F5C8]/10">
                 {filteredProducts.length === 0 ? (
                   <tr>
                     <td
@@ -156,39 +175,51 @@ const AdminProducts = () => {
                   filteredProducts.map((p) => (
                     <tr
                       key={p.id}
-                      className="border-t border-[#00F5C8]/10 hover:bg-[#00F5C8]/5"
+                      className="hover:bg-[#00F5C8]/5 transition-colors duration-150"
                     >
-                      <td className="px-6 py-4 flex items-center gap-3">
-                        {p.image ? (
-                          <img
-                            src={p.image}
-                            alt={p.name}
-                            className="h-10 w-10 rounded object-cover"
-                          />
-                        ) : (
-                          <div className="h-10 w-10 bg-[#050B14] rounded flex items-center justify-center">
-                            <FaBox className="text-gray-500" />
+                      {/* Product Column */}
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          {p.image ? (
+                            <img
+                              src={p.image}
+                              alt={p.name}
+                              className="h-10 w-10 rounded object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="h-10 w-10 bg-[#050B14] rounded flex items-center justify-center flex-shrink-0">
+                              <FaBox className="text-gray-500" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-medium text-sm md:text-base truncate">
+                              {p.name}
+                            </p>
+                            <p className="text-xs md:text-sm text-gray-400 truncate">
+                              {p.brand || "No brand"}
+                            </p>
                           </div>
-                        )}
-                        <div>
-                          <p className="font-medium">{p.name}</p>
-                          <p className="text-sm text-gray-400">
-                            {p.brand || "No brand"}
-                          </p>
                         </div>
                       </td>
 
-                      <td className="px-6 py-4 text-sm">
-                        <span className="px-3 py-1 rounded-full bg-[#00F5C8]/10 text-[#00F5C8]">
+                      {/* Category Column */}
+                      <td className="px-4 py-4">
+                        <span className="inline-flex px-2 py-1 rounded-full bg-[#00F5C8]/10 text-[#00F5C8] text-xs md:text-sm whitespace-nowrap">
                           {p.category || "Uncategorized"}
                         </span>
                       </td>
 
-                      <td className="px-6 py-4">${p.price || "0.00"}</td>
+                      {/* Price Column */}
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        <span className="text-sm md:text-base font-medium">
+                          ${p.price || "0.00"}
+                        </span>
+                      </td>
 
-                      <td className="px-6 py-4">
+                      {/* Stock Column */}
+                      <td className="px-4 py-4">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs ${
+                          className={`inline-flex px-2 py-1 rounded-full text-xs md:text-sm whitespace-nowrap ${
                             (p.stock || 0) > 10
                               ? "bg-green-500/20 text-green-400"
                               : (p.stock || 0) > 0
@@ -200,22 +231,30 @@ const AdminProducts = () => {
                         </span>
                       </td>
 
-                      <td className="px-6 py-4">
-                        <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs">
+                      {/* Status Column */}
+                      <td className="px-4 py-4">
+                        <span className="inline-flex px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs md:text-sm whitespace-nowrap">
                           {p.status || "active"}
                         </span>
                       </td>
 
-                      <td className="px-6 py-4 flex gap-3">
-                        <button className="text-[#00F5C8] hover:opacity-80">
-                          <FaEdit />
-                        </button>
-                        <button
-                          className="text-red-400 hover:opacity-80"
-                          onClick={() => handleDelete(p.id)}
-                        >
-                          <FaTrash />
-                        </button>
+                      {/* Actions Column */}
+                      <td className="px-4 py-4">
+                        <div className="flex gap-2 md:gap-3">
+                          <button 
+                            className="p-1.5 md:p-2 text-[#00F5C8] hover:bg-[#00F5C8]/10 rounded transition-colors duration-200"
+                            title="Edit"
+                          >
+                            <FaEdit className="text-sm md:text-base" />
+                          </button>
+                          <button
+                            className="p-1.5 md:p-2 text-red-400 hover:bg-red-400/10 rounded transition-colors duration-200"
+                            onClick={() => handleDelete(p.id)}
+                            title="Delete"
+                          >
+                            <FaTrash className="text-sm md:text-base" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -224,6 +263,66 @@ const AdminProducts = () => {
             </table>
           </div>
         )}
+
+        {/* Table Footer - Responsive */}
+        {filteredProducts.length > 0 && (
+          <div className="px-4 py-3 bg-[#050B14] border-t border-[#00F5C8]/10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="text-xs md:text-sm text-gray-400">
+                Showing {filteredProducts.length} of {products.length} products
+              </div>
+              <div className="flex items-center space-x-2 overflow-x-auto">
+                <button className="px-3 py-1.5 border border-[#00F5C8]/30 rounded text-xs md:text-sm text-gray-400 hover:bg-[#00F5C8]/10 transition-colors duration-200 whitespace-nowrap">
+                  ← Previous
+                </button>
+                <button className="px-3 py-1.5 border border-[#00F5C8] bg-[#00F5C8]/20 rounded text-xs md:text-sm text-[#00F5C8] whitespace-nowrap">
+                  1
+                </button>
+                <button className="px-3 py-1.5 border border-[#00F5C8]/30 rounded text-xs md:text-sm text-gray-400 hover:bg-[#00F5C8]/10 transition-colors duration-200 whitespace-nowrap">
+                  2
+                </button>
+                <button className="px-3 py-1.5 border border-[#00F5C8]/30 rounded text-xs md:text-sm text-gray-400 hover:bg-[#00F5C8]/10 transition-colors duration-200 whitespace-nowrap">
+                  3
+                </button>
+                <button className="px-3 py-1.5 border border-[#00F5C8]/30 rounded text-xs md:text-sm text-gray-400 hover:bg-[#00F5C8]/10 transition-colors duration-200 whitespace-nowrap">
+                  Next →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile Summary Card (Hidden on Desktop) */}
+      <div className="md:hidden bg-[#0B1C2D] border border-[#00F5C8]/20 rounded-xl p-4 shadow-lg">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-[#00F5C8] font-medium">Summary</h3>
+          <span className="text-sm text-gray-400">
+            {filteredProducts.length} products
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-[#050B14] rounded-lg p-3">
+            <p className="text-xs text-gray-400">Active</p>
+            <p className="text-lg font-bold text-green-400">
+              {products.filter(p => p.status === 'active').length}
+            </p>
+          </div>
+          <div className="bg-[#050B14] rounded-lg p-3">
+            <p className="text-xs text-gray-400">Low Stock</p>
+            <p className="text-lg font-bold text-yellow-400">
+              {products.filter(p => (p.stock || 0) < 10 && (p.stock || 0) > 0).length}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Note */}
+      <div className="text-center pt-4">
+        <p className="text-xs md:text-sm text-gray-500">
+          Products are automatically synced from your database.
+          Changes may take a few moments to reflect.
+        </p>
       </div>
     </div>
   );
