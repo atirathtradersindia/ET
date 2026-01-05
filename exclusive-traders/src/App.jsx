@@ -36,7 +36,7 @@ import AdminProducts from './components/Admin/AdminProducts';
 import AdminOrders from './components/Admin/AdminOrders';
 import AdminUsers from './components/Admin/AdminUsers';
 import AdminHistory from './components/Admin/AdminHistory';
-import AdminLayout from './components/Admin/AdminLayout'; 
+import AdminLayout from './components/Admin/Adminlayout'; 
 import ProtectedAdminRoute from './components/Admin/ProtectedAdminRoute';
 
 // ---------- Placeholder pages (replace with real ones) ----------
