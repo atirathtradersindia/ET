@@ -608,7 +608,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .animate-marquee-infinite {
-  animation: marquee-infinite 40s linear infinite;
+  animation: marquee-infinite 10s linear infinite;
 }
 
 .animate-marquee-infinite:hover {

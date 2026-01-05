@@ -1,3 +1,5 @@
+import React from 'react';
+
 const Industries = ({ showIndustryProducts, currentUser, onViewAllProducts }) => {
   const industries = [
     { id: 'Chocolate', name: 'Chocolate', image: 'https://shreejifoods.in/cdn/shop/products/IMG_19032021_095047__500_x_500_pixel.jpg?v=1616404272' },
@@ -17,25 +19,12 @@ const Industries = ({ showIndustryProducts, currentUser, onViewAllProducts }) =>
   ];
 
   const handleIndustryClick = (industryId) => {
-    // Check if user is authenticated
-    if (!currentUser) {
-      alert('Please sign in to view products');
-      // Redirect to signin page immediately
-      window.location.hash = '#signin';
-      return;
-    }
-    // If authenticated, show products
+    // Allow everyone to view products without sign-in
     showIndustryProducts(industryId);
   };
 
   const handleViewAllProducts = () => {
-    // Check if user is authenticated
-    if (!currentUser) {
-      alert('Please sign in to view products');
-      window.location.hash = '#signin';
-      return;
-    }
-    // Call the parent function to show all products
+    // Allow everyone to view all products without sign-in
     onViewAllProducts();
   };
 

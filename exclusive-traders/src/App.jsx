@@ -6,6 +6,7 @@ import {
   useNavigate,
   useLocation,
   Navigate,
+  Outlet,
 } from 'react-router-dom';
 import { auth } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -27,6 +28,16 @@ import JoinUs from './components/JoinUs';
 import Blog from './components/Blog';
 import BlogPost from './components/BlogPost';
 import Leadership from './components/Leadership';
+import Contactus from './components/Contactus';
+
+// ---------- Admin Components ----------
+import AdminDashboard from './components/Admin/AdminDashboard';
+import AdminProducts from './components/Admin/AdminProducts';
+import AdminOrders from './components/Admin/AdminOrders';
+import AdminUsers from './components/Admin/AdminUsers';
+import AdminHistory from './components/Admin/AdminHistory';
+import AdminLayout from './components/Admin/AdminLayout'; 
+import ProtectedAdminRoute from './components/Admin/ProtectedAdminRoute';
 
 // ---------- Placeholder pages (replace with real ones) ----------
 
@@ -86,9 +97,9 @@ function App() {
   // Auth listener
   // -----------------------------------------------------------------
   useEffect(() => {
-    setIsMounted(true);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
+  setIsMounted(true);
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (user) {
         setCurrentUser(user);
         localStorage.setItem(
           'currentUser',
@@ -111,7 +122,7 @@ function App() {
   // -----------------------------------------------------------------
   useEffect(() => {
     const path = location.pathname;
-    if (!['/products', '/all-products'].includes(path)) {
+    if (!['/products', '/all-products', '/admin'].includes(path) && !path.startsWith('/admin/')) {
       setSearchTerm('');
       setIsMobileMenuOpen(false);
       setIsSidebarOpen(false);
@@ -227,52 +238,54 @@ function App() {
 
   return (
     <div className="App font-inter">
-      {/* Header */}
-      <Header
-        navigateToPage={navigateToPage}
-        currentPage={location.pathname.slice(1) || 'home'}
-        searchTerm={searchTerm}
-        onSearchChange={handleSearchChange}
-        currentUser={currentUser}
-        onSignOut={handleSignOut}
-        isMobileMenuOpen={isMobileMenuOpen}
-        toggleMobileMenu={toggleMobileMenu}
-      />
+      {/* Header - Don't show on admin pages */}
+      {!location.pathname.startsWith('/admin') && (
+        <Header
+          navigateToPage={navigateToPage}
+          currentPage={location.pathname.slice(1) || 'home'}
+          searchTerm={searchTerm}
+          onSearchChange={handleSearchChange}
+          currentUser={currentUser}
+          onSignOut={handleSignOut}
+          isMobileMenuOpen={isMobileMenuOpen}
+          toggleMobileMenu={toggleMobileMenu}
+        />
+      )}
 
       {/* ---- ALL ROUTES ---- */}
-      <main className="pt-4">
+      <main className={location.pathname.startsWith('/admin') ? '' : 'pt-4'}>
         <Routes>
           {/* HOME – ALL SECTIONS WITH SCROLL */}
           <Route
-  path="/home"
-  element={
-    <>
-      {/* HERO FIRST – NO STICKY RSS ON TOP */}
-      <div id="hero">
-        <Hero showInnovation={showInnovation} />
-      </div>
+            path="/home"
+            element={
+              <>
+                {/* HERO FIRST – NO STICKY RSS ON TOP */}
+                <div id="hero">
+                  <Hero showInnovation={showInnovation} />
+                </div>
 
-      {/* RSS FEED AFTER HERO – NORMAL FLOW, NO STICKY */}
-      <div className="relative z-20 bg-black/80">
-        <BasmatiRSSFeed />
-      </div>
+                {/* RSS FEED AFTER HERO – NORMAL FLOW, NO STICKY */}
+                <div className="relative z-20 bg-black/80">
+                  <BasmatiRSSFeed />
+                </div>
 
-      {/* Rest of your sections */}
-      <div id="about"><About /></div>
-      <div id="services"><Services /></div>
-      <div id="industries">
-        <Industries
-          showIndustryProducts={showIndustryProducts}
-          currentUser={currentUser}
-          onViewAllProducts={showAllProducts}
-        />
-      </div>
-      <div id="leadership"><Leadership /></div>
-      <div id="quote-request"><QuoteRequest /></div>
-    </>
-  }
-/>
-          
+                {/* Rest of your sections */}
+                <div id="about"><About /></div>
+                <div id="services"><Services /></div>
+                <div id="industries">
+                  <Industries
+                    showIndustryProducts={showIndustryProducts}
+                    currentUser={currentUser}
+                    onViewAllProducts={showAllProducts}
+                  />
+                </div>
+                <div id="leadership"><Leadership /></div>
+                <div id="QuoteRequest"><QuoteRequest /></div>
+              </>
+            }
+          />
+
           {/* Individual full-page routes */}
           <Route path="/services" element={<Services />} />
           <Route path="/about" element={<About />} />
@@ -286,8 +299,9 @@ function App() {
               />
             }
           />
-          <Route path="/leadership" element={<Leadership/>} />
-          <Route path="/quote-request" element={<QuoteRequest />} />
+          <Route path="/leadership" element={<Leadership />} />
+          <Route path="/QuoteRequest" element={<QuoteRequest />} />
+          <Route path="/Contactus" element={<Contactus />} />
 
           {/* Full-page routes */}
           <Route
@@ -325,22 +339,43 @@ function App() {
           <Route
             path="/signup"
             element={<SignUp navigateToPage={navigateToPage} onAuthSuccess={handleAuthSuccess} />}
-            
           />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:id" element={<BlogPost />} />
-          <Route path="/join-us" element={<JoinUs/>} />
+          <Route path="/join-us" element={<JoinUs />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/settings" element={<Settings />} />
+
+          {/* ========== ADMIN ROUTES ========== */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedAdminRoute currentUser={currentUser}>
+                <AdminLayout
+                  currentUser={currentUser}
+                  onSignOut={handleSignOut}
+                  toggleMobileMenu={toggleMobileMenu}
+                />
+              </ProtectedAdminRoute>
+            }
+          >
+            {/* The Outlet in AdminLayout will render these child routes */}
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="history" element={<AdminHistory />} /> {/* FIXED: Changed from "settings" to "history" */}
+          </Route>
 
           {/* Default redirect */}
           <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
       </main>
 
-      {/* Single Footer instance */}
-      <Footer />
+      {/* Single Footer instance - Don't show on admin pages */}
+      {!location.pathname.startsWith('/admin') && <Footer />}
 
       {/* Auth Modal */}
       {showAuthModal && (

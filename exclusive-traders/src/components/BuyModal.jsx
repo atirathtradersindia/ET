@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { riceData } from "../data/products";
 import ThankYouPopup from "../components/ThankYouPopup";
 import { ref, push, set } from "firebase/database";
-import { quoteDatabase } from "../firebasegetquote";
+import { quoteDatabase } from "../firebase";
 
 // Industry-specific grade data
 const industryGrades = {
@@ -305,6 +305,39 @@ const portPrices = {
   "Other": 20.00
 };
 
+// Countries and their ports data
+const countriesPortsData = {
+  "Africa": [
+    "Port of Durban", "Port of Lagos", "Port of Mombasa", 
+    "Port of Cape Town", "Port of Alexandria", "Port of Casablanca",
+    "Port of Dakar", "Port of Abidjan", "Port of Dar es Salaam",
+    "Port of Tangier"
+  ],
+  "Dubai": [
+    "Port of Jebel Ali", "Port Rashid", "Port of Fujairah",
+    "Port of Khalifa", "Port of Sharjah", "Port of Ajman"
+  ],
+  "Oman": [
+    "Port of Salalah", "Port Sultan Qaboos", "Port of Sohar",
+    "Port of Duqm", "Port of Khasab", "Port of Sur"
+  ],
+  "UK": [
+    "Port of Felixstowe", "Port of Southampton", "Port of London",
+    "Port of Liverpool", "Port of Hull", "Port of Bristol",
+    "Port of Glasgow", "Port of Belfast"
+  ],
+  "Turkey": [
+    "Port of Istanbul", "Port of Izmir", "Port of Mersin",
+    "Port of Ambarlı", "Port of Haydarpaşa", "Port of Tekirdağ",
+    "Port of Bandırma", "Port of Samsun"
+  ],
+  "USA": [
+    "Port of Los Angeles", "Port of Long Beach", "Port of New York/New Jersey",
+    "Port of Savannah", "Port of Houston", "Port of Oakland",
+    "Port of Seattle", "Port of Miami", "Port of Charleston"
+  ]
+};
+
 const BuyModal = ({ isOpen, onClose, product, profile, industry }) => {
   const [packing, setPacking] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -326,6 +359,12 @@ const BuyModal = ({ isOpen, onClose, product, profile, industry }) => {
   const [packingOptions, setPackingOptions] = useState([]);
   const [portPrice, setPortPrice] = useState(0.00);
   const [packingPrice, setPackingPrice] = useState(0.00);
+  
+  // New states for Countries Port section
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [countryPorts, setCountryPorts] = useState([]);
+  const [selectedCountryPort, setSelectedCountryPort] = useState("");
+  
   const canvasRef = useRef(null);
   const countrySelectRef = useRef(null);
 
@@ -348,6 +387,35 @@ const BuyModal = ({ isOpen, onClose, product, profile, industry }) => {
     transport: 1.90,
     insurance: 0.11,
     freight: 0.50
+  };
+
+  // Function to get 2 random ports from a country
+  const getRandomPorts = (country) => {
+    const allPorts = countriesPortsData[country] || [];
+    
+    // Shuffle the ports array and pick first 2
+    const shuffled = [...allPorts].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 2);
+  };
+
+  // Handle country selection change for Countries Port section
+  const handleCountryPortChange = (e) => {
+    const country = e.target.value;
+    setSelectedCountry(country);
+    setSelectedCountryPort(""); // Reset port selection
+    
+    if (country) {
+      // Get 2 random ports for the selected country
+      const randomPorts = getRandomPorts(country);
+      setCountryPorts(randomPorts);
+    } else {
+      setCountryPorts([]);
+    }
+  };
+
+  // Handle country port selection change
+  const handleCountryPortSelect = (e) => {
+    setSelectedCountryPort(e.target.value);
   };
 
   // Load quantity options based on industry - NO DEFAULT SETTING
@@ -428,7 +496,7 @@ const BuyModal = ({ isOpen, onClose, product, profile, industry }) => {
       const nameValue = profile.fullName || profile.displayName || profile.name || "";
       setFullName(nameValue);
       setEmail(profile.email || "");
-      if (profile.phone) {
+      if (profile.phone ) {
         const phoneParts = profile.phone.split(" ");
         if (phoneParts.length > 1) {
           setCountryCode(phoneParts[0]);
@@ -498,7 +566,7 @@ const BuyModal = ({ isOpen, onClose, product, profile, industry }) => {
     }
   };
 
-  const handleCountryChange = (e) => {
+  const handlePhoneCountryChange = (e) => {
     e.preventDefault();
     const newCode = e.target.value;
     setCountryCode(newCode);
@@ -625,7 +693,9 @@ const BuyModal = ({ isOpen, onClose, product, profile, industry }) => {
       freightCost: freightCostNum.toFixed(2),
       totalTransportPrice: totalTransportPrice.toFixed(2),
       cifRequired: cifRequired === "yes",
-      total
+      total,
+      selectedCountry,
+      selectedCountryPort
     };
   };
 
@@ -665,7 +735,8 @@ const BuyModal = ({ isOpen, onClose, product, profile, industry }) => {
       finalQuantity = quantity;
     }
 
-    if (!packing || !port || !fullName || !cifRequired || !grade) {
+    // Updated validation to include new fields
+    if (!packing || !port || !fullName || !cifRequired || !grade || !selectedCountry || !selectedCountryPort) {
       alert("Please fill all required fields.");
       return;
     }
@@ -707,7 +778,9 @@ const BuyModal = ({ isOpen, onClose, product, profile, industry }) => {
         transportCost: cifRequired === "yes" ? CIF_DEFAULT_COSTS.transport.toFixed(2) : "0.00",
         insuranceCost: cifRequired === "yes" ? CIF_DEFAULT_COSTS.insurance.toFixed(2) : "0.00",
         freightCost: cifRequired === "yes" ? CIF_DEFAULT_COSTS.freight.toFixed(2) : "0.00",
-        additionalInfo
+        additionalInfo,
+        destinationCountry: selectedCountry,
+        destinationPort: selectedCountryPort
       },
       estimatedBill: {
         basePrice: estimatedBill.basePrice,
@@ -719,7 +792,9 @@ const BuyModal = ({ isOpen, onClose, product, profile, industry }) => {
         insuranceCost: estimatedBill.insuranceCost,
         freightCost: estimatedBill.freightCost,
         totalTransportPrice: estimatedBill.totalTransportPrice,
-        total: estimatedBill.total
+        total: estimatedBill.total,
+        destinationCountry: selectedCountry,
+        destinationPort: selectedCountryPort
       },
       timestamp: new Date().toISOString(),
       source: 'website',
@@ -737,7 +812,9 @@ const BuyModal = ({ isOpen, onClose, product, profile, industry }) => {
 - Grade: ${grade}${gradePrice ? ` (Price: $${gradePrice})` : ''}
 - Packing: ${packing} ($${packingPrice.toFixed(2)})
 - Quantity: ${finalQuantity}
-- Port: ${port}
+- Port of Loading: ${port}
+- Destination Country: ${selectedCountry}
+- Destination Port: ${selectedCountryPort}
 - Port Cost: $${estimatedBill.portPrice}
 - CIF Required: ${cifRequired === "yes" ? "Yes" : "No"}
 ${cifRequired === "yes" ? `- Transport Cost: $${estimatedBill.transportCost}` : ""}
@@ -766,7 +843,9 @@ Thank you!`;
 - Grade: ${grade}${gradePrice ? ` (Price: $${gradePrice})` : ''}
 - Packing: ${packing} ($${packingPrice.toFixed(2)})
 - Quantity: ${finalQuantity}
-- Port: ${port}
+- Port of Loading: ${port}
+- Destination Country: ${selectedCountry}
+- Destination Port: ${selectedCountryPort}
 - CIF Required: ${cifRequired === "yes" ? "Yes" : "No"}
 ${cifRequired === "yes" ? `- Transport Cost: $${estimatedBill.transportCost}` : ""}
 ${cifRequired === "yes" ? `- Insurance Cost: $${estimatedBill.insuranceCost}` : ""}
@@ -807,6 +886,10 @@ Thank you!`;
     setIsSubmitting(false);
     setPortPrice(0.00);
     setPackingPrice(0.00);
+    // Reset new states
+    setSelectedCountry("");
+    setCountryPorts([]);
+    setSelectedCountryPort("");
     onClose();
   };
 
@@ -875,7 +958,7 @@ Thank you!`;
                       <select
                         ref={countrySelectRef}
                         value={countryCode}
-                        onChange={handleCountryChange}
+                        onChange={handlePhoneCountryChange}
                         className="country-code-select flex-1 basis-1/4 min-w-[80px] input-field"
                         style={{ zIndex: 1002, position: 'relative' }}
                         disabled={isSubmitting}
@@ -1000,6 +1083,53 @@ Thank you!`;
                       </div>
                     )}
                   </label>
+                  
+                  {/* NEW: Countries Port Section */}
+                  <div className="mt-4 mb-4">
+                    <h4 className="font-medium mb-2 text-gray-300">Countries Port</h4>
+                    <label>
+                      Select Country *
+                      <select
+                        value={selectedCountry}
+                        onChange={handleCountryPortChange}
+                        required
+                        className="select-field"
+                        disabled={isSubmitting}
+                      >
+                        <option value="">Select Country</option>
+                        <option value="Africa">Africa</option>
+                        <option value="Dubai">Dubai</option>
+                        <option value="Oman">Oman</option>
+                        <option value="UK">UK</option>
+                        <option value="Turkey">Turkey</option>
+                        <option value="USA">USA</option>
+                      </select>
+                    </label>
+                    
+                    {countryPorts.length > 0 && (
+                      <label className="mt-3 block">
+                        Select Port from {selectedCountry} *
+                        <select
+                          value={selectedCountryPort}
+                          onChange={handleCountryPortSelect}
+                          required
+                          className="select-field"
+                          disabled={isSubmitting}
+                        >
+                          <option value="">Select Port</option>
+                          {countryPorts.map((port, index) => (
+                            <option key={index} value={port}>
+                              {port}
+                            </option>
+                          ))}
+                        </select>
+                        <small className="text-gray-400">
+                          Randomly selected ports from {selectedCountry}
+                        </small>
+                      </label>
+                    )}
+                  </div>
+                  
                   <label>
                     Port of Loading *
                     <select
@@ -1133,6 +1263,18 @@ Thank you!`;
                     <span>Port Price:</span>
                     <span>${estimatedBill.portPrice || '0.00'}</span>
                   </div>
+                  {selectedCountry && (
+                    <div className="flex justify-between mb-2">
+                      <span>Destination Country:</span>
+                      <span>{selectedCountry}</span>
+                    </div>
+                  )}
+                  {selectedCountryPort && (
+                    <div className="flex justify-between mb-2">
+                      <span>Destination Port:</span>
+                      <span>{selectedCountryPort}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-bold mt-4 pt-2 border-t border-gray-600">
                     <span>Total Estimated Cost:</span>
                     <span>${estimatedBill.total || '0.00'}</span>

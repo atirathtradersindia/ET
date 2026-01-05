@@ -704,6 +704,42 @@ export const riceData = [
     "stock": "Low"
   },
   {
+    "variety": "Sharbati (Non-Basmati)",
+    "grade": "Sharbati Creamy Parboiled",
+    "price_inr": 101,
+    "moq": 2000,
+    "origin": "Punjab",
+    "harvest": "Nov 2024",
+    "stock": "Medium"
+  },
+  {
+    "variety": "Sharbati (Non-Basmati)",
+    "grade": "Sharbati Golden",
+    "price_inr": 150,
+    "moq": 5000,
+    "origin": "Chhattisgarh",
+    "harvest": "Nov 2024",
+    "stock": "Low"
+  },
+  {
+    "variety": "Sharbati (Non-Basmati)",
+    "grade": "Sharbati Steam",
+    "price_inr": 130,
+    "moq": 3000,
+    "origin": "Chhattisgarh",
+    "harvest": "Nov 2024",
+    "stock": "Low"
+  },
+  {
+    "variety": "Sharbati (Non-Basmati)",
+    "grade": "Sharbati Sella",
+    "price_inr": 105,
+    "moq": 2000,
+    "origin": "Madhya Pradesh",
+    "harvest": "Nov 2024",
+    "stock": "Medium"
+  },
+  {
     "variety": "Kalizeera (Non-Basmati)",
     "grade": "Kalizeera Sella",
     "price_inr": 90,
@@ -757,4 +793,5 @@ export const riceData = [
     "harvest": "Nov 2024",
     "stock": "Low"
   }
+  
 ];

@@ -43,12 +43,12 @@ const Innovation = ({ onBackToHome }) => {
 
         {/* Company Vision & Innovation Message */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-secondary mb-6 text-shadow-neon font-inter">
+          <h2 className="text-4xl text-secondary mb-4 text-shadow-black">
             Vision & Innovation
           </h2>
           <div className="max-w-4xl mx-auto">
             <p className="text-xl text-light mb-6 leading-relaxed font-inter">
-              At <span className="text-secondary font-semibold">Exclusive Traders</span>, innovation drives everything we do.
+              At <span className="text-secondary font-semibold">Exclusive Trader</span>, innovation drives everything we do.
               From sourcing premium-quality products to adopting modern trading practices, we constantly evolve to meet global standards.
             </p>
             <p className="text-xl text-light mb-8 leading-relaxed font-inter">
@@ -112,7 +112,7 @@ const Innovation = ({ onBackToHome }) => {
             </h3>
             <p className="text-lg text-light mb-6 leading-relaxed font-inter">
               From the farms and factories to your hands — our journey is powered by innovation.
-              At <span className="text-secondary font-semibold">Exclusive Traders</span>, we blend heritage with modern thinking.
+              At <span className="text-secondary font-semibold">Exclusive Trader</span>, we blend heritage with modern thinking.
             </p>
             <p className="text-lg text-light mb-8 leading-relaxed font-inter">
               Whether it's exporting the finest rice or importing cutting-edge gadgets, our goal is the same:
