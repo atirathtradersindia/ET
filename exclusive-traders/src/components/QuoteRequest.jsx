@@ -16,8 +16,26 @@ const QuoteRequest = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Submitted:', formData);
-    alert('Thank you! Your request has been sent.');
+    
+    // Format the message for WhatsApp
+    const phoneNumber = "9703744571"; // WhatsApp number
+    const message = `*New Feedback Submission*\n\n` +
+                   `*Name:* ${formData.name}\n` +
+                   `*Email:* ${formData.email}\n` +
+                   `*Industry:* ${formData.industry}\n` +
+                   `*Requirements:* ${formData.requirements}\n\n` +
+                   `_Sent via Exclusive Trader Website_`;
+    
+    // Encode the message for URL
+    const encodedMessage = encodeURIComponent(message);
+    
+    // Create WhatsApp URL
+    const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+    
+    // Open WhatsApp in a new tab
+    window.open(whatsappURL, '_blank');
+    
+    // Reset form
     setFormData({ name: '', email: '', industry: '', requirements: '' });
   };
 

@@ -1,9 +1,26 @@
 // src/components/Products.jsx
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import BuyModal from './BuyModal';
 
-const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthRequired, isSidebarOpen, toggleSidebar }) => {
+const Products = ({ goBackToProducts, searchTerm, currentUser, onAuthRequired, isSidebarOpen, toggleSidebar }) => {
+    // Get industry from URL parameter
+    const { industry } = useParams();
+    
+    // Convert URL parameter to proper industry name
+    const formatIndustryName = (industrySlug) => {
+        if (!industrySlug) return 'Chocolate';
+        
+        // Convert hyphenated string to proper case
+        return industrySlug
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    };
+
+    const currentIndustry = formatIndustryName(industry);
+
     // Define valid industries
     const validIndustries = [
         'Chocolate', 'Rice', 'Perfumes', 'Clothes', 'Electronics',
@@ -13,51 +30,77 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
 
     // Initialize state with values from localStorage or defaults
     const [selectedBrand, setSelectedBrand] = useState(() => {
-        return localStorage.getItem(`selectedBrand_${industry}`) || '';
-    });
-    const [currentIndustry, setCurrentIndustry] = useState(() => {
-        const storedIndustry = localStorage.getItem('currentIndustry');
-        return validIndustries.includes(storedIndustry) ? storedIndustry :
-               validIndustries.includes(industry) ? industry : 'Chocolate';
+        return localStorage.getItem(`selectedBrand_${currentIndustry}`) || '';
     });
     const [currentSearchTerm, setCurrentSearchTerm] = useState(() => {
-        return localStorage.getItem(`searchTerm_${industry}`) || searchTerm || '';
+        return localStorage.getItem(`searchTerm_${currentIndustry}`) || searchTerm || '';
     });
     const [selectedIndustryForProducts, setSelectedIndustryForProducts] = useState('');
 
     // BuyModal state
     const [showBuyModal, setShowBuyModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [hasScrolledToTop, setHasScrolledToTop] = useState(false);
 
     // Update localStorage when state changes
     useEffect(() => {
         localStorage.setItem(`selectedBrand_${currentIndustry}`, selectedBrand);
     }, [selectedBrand, currentIndustry]);
-    useEffect(() => {
-        localStorage.setItem('currentIndustry', currentIndustry);
-    }, [currentIndustry]);
+    
     useEffect(() => {
         localStorage.setItem(`searchTerm_${currentIndustry}`, currentSearchTerm);
     }, [currentSearchTerm, currentIndustry]);
 
-    // Update state when props change, only if valid
+    // Update state when searchTerm prop changes
     useEffect(() => {
-        if (validIndustries.includes(industry)) {
-            setCurrentIndustry(industry);
-            setSelectedBrand('');
-        }
         setCurrentSearchTerm(searchTerm || '');
-    }, [industry, searchTerm]);
+    }, [searchTerm]);
 
-    // Scroll to top when component mounts
+    // Reset scroll to top when component mounts or industry changes
     useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const scrollToTop = () => {
+            window.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: 'instant'
+            });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            setHasScrolledToTop(true);
+        };
+
+        // Immediate scroll on mount and industry change
+        scrollToTop();
+
+        // Also ensure scroll after a short delay to catch any async rendering
+        const timeoutId = setTimeout(scrollToTop, 50);
+        
+        return () => clearTimeout(timeoutId);
+    }, [currentIndustry]);
+
+    // Force scroll to top when entering the component
+    useEffect(() => {
+        const handleRouteChange = () => {
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        };
+
+        // Execute immediately
+        handleRouteChange();
+
+        // And after a small delay to ensure DOM is ready
+        setTimeout(handleRouteChange, 10);
+        setTimeout(handleRouteChange, 100);
+
+        return () => {
+            // Clean up
+        };
     }, []);
 
     // Sample product data for all industries
     const productsData = {
         Chocolate: {
-            name: "Chocolate Products",
             brands: ["Cadbury", "Lindt", "Ferrero Rocher", "Hershey's", "Godiva", "Toblerone"],
             products: [
                 { id: 1, name: "Dark Chocolate Bar", brand: "dark", price: "₹150-250 per 100g", image: "https://upload.wikimedia.org/wikipedia/commons/c/cd/Green_and_Black%27s_dark_chocolate_bar_2.jpg" },
@@ -83,7 +126,6 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
             ]
         },
         Rice: {
-            name: "Rice Products",
             brands: ["Basmati", "Non-Basmati"],
             products: [
                 { id: 101, name: "1121 Basmati Rice", brand: "Basmati", price: "$12.99 per kg", image: "/img/1121_Steam_Basamati.jpg" },
@@ -106,7 +148,6 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
             ]
         },
         Perfumes: {
-            name: "Perfume Collections",
             brands: ["Chanel", "Dior", "Gucci", "Versace", "Calvin Klein", "Tom Ford"],
             products: [
                 { id: 1, name: "Rose Floral Perfume", brand: "floral", price: "₹1,500-3,000 per 50ml", image: "https://thursd.com/storage/media/60906/floral-fragrance-from-the-pink-roses-of-Grasse.jpg" },
@@ -132,7 +173,6 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
             ]
         },
         Clothes: {
-            name: "Fashion Collection",
             brands: ["Nike", "Adidas", "Zara", "H&M", "Levi's", "Tommy Hilfiger"],
             products: [
                 { id: 1, name: "Men's T-Shirt", brand: "men", price: "₹500-1,000", image: "https://triprindia.com/cdn/shop/files/3.1_e5dffbdb-a071-4248-a973-fd919300796e.jpg?v=1758184028&width=1200" },
@@ -158,7 +198,6 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
             ]
         },
         Electronics: {
-            name: "Electronics & Gadgets",
             brands: ["Apple", "Samsung", "Sony", "LG", "Dell", "HP"],
             products: [
                 { id: 1, name: "iPhone 15", brand: "Apple", price: "$999.00", image: "https://www.apple.com/newsroom/images/2023/09/apple-unveils-iphone-15-pro-and-iphone-15-pro-max/article/Apple-iPhone-15-Pro-lineup-hero-230912_Full-Bleed-Image.jpg.large.jpg" },
@@ -170,7 +209,6 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
             ]
         },
         Fruits: {
-            name: "Fresh Fruits",
             brands: ["Del Monte", "Dole", "Chiquita", "Sunkist", "Wonderful", "Ocean Spray"],
             products: [
                 { id: 1, name: "Fresh Apples", brand: "Del Monte", price: "$3.99", image: "https://5.imimg.com/data5/AK/RA/MY-68428614/apple.jpg" },
@@ -182,7 +220,6 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
             ]
         },
         Vegetables: {
-            name: "Fresh Vegetables",
             brands: ["Green Giant", "Fresh Express", "Earthbound", "Mann's", "Grimmway", "Bunny"],
             products: [
                 { id: 1, name: "Carrots", brand: "Grimmway", price: "$2.99", image: "https://bcfresh.ca/wp-content/uploads/2021/11/Carrots.jpg" },
@@ -194,7 +231,6 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
             ]
         },
         Spices: {
-            name: "Spices Collection",
             brands: [
                 "cumin", "turmeric", "pepper", "cinnamon", "clove", "coriander",
                 "mustard", "methi", "fennel", "bayleaf", "ajwain", "curry",
@@ -246,7 +282,6 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
             ]
         },
         Pulses: {
-            name: "Pulses & Lentils",
             brands: ["dal", "whole"],
             products: [
                 { id: 1, name: "Toor Dal (Arhar Dal)", brand: "dal", price: "₹120-140 per kg", image: "https://chakkiwalle.com/cdn/shop/files/1588344248_toor-dal.jpg?v=1708599736" },
@@ -290,7 +325,6 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
             ]
         },
         'Dry Fruits': {
-            name: "Dry Fruits & Nuts",
             brands: ["Blue Diamond", "Wonderful", "Planters", "Kirkland", "Emerald", "Fisher"],
             products: [
                 { id: 1, name: "Roasted Almonds", brand: "almond", price: "₹600-800 per kg", image: "https://www.onlinedelivery.in/images/detailed/27/7861.jpg" },
@@ -352,7 +386,7 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
                 { id: 58, name: "Dried Gooseberries (Amla)", brand: "amla", price: "₹400-650 per kg", image: "https://www.jiomart.com/images/product/original/rvatcffbnp/dried-amla-candy-250gm-organic-dry-indian-gooseberry-fruit-mouth-freshener-without-added-sugar-or-preservatives-product-images-orvatcffbnp-p597461605-0-202301101530.jpg?im=Resize=(1000,1000)" },
                 { id: 59, name: "Dried Tamarind", brand: "tamarind", price: "₹200-400 per kg", image: "https://5.imimg.com/data5/SELLER/Default/2025/4/506835188/UI/BD/BA/205628097/seedless-tamarind.jpeg" },
                 { id: 60, name: "Dried Orange Peel", brand: "orange", price: "₹500-750 per kg", image: "https://5.imimg.com/data5/SELLER/Default/2024/4/411060961/PT/AR/LA/1473185/dried-orange-peel.png" },
-                { id: 61, name: "Dried Pineapple Tidbits", brand: "pineapple", price: "₹700-900 per kg", image: "https://m.media-amazon.com/images/I/41kODWpIuKL.jpg" },
+                { id: 61, name: "Dried Pineapple Tidbits", brand: "pineapple", price: "₹700-900 per kg", image: "https://m.media-amazon.com/images-I/41kODWpIuKL.jpg" },
                 { id: 62, name: "Roasted Mixed Seeds", brand: "mix", price: "₹600-800 per kg", image: "https://cdn.shopaccino.com/dalnrice/products/71z31waoalsl1024-663651_l.jpg?v=610" },
                 { id: 63, name: "Dried Black Grapes", brand: "raisin", price: "₹250-400 per kg", image: "https://trvcashews.com/shop/wp-content/uploads/2021/05/Black-Raisins-with-seed.jpg" },
                 { id: 64, name: "Dried Papaya Spears", brand: "papaya", price: "₹550-750 per kg", image: "https://m.media-amazon.com/images/I/410Ip6AElYL.jpg" },
@@ -364,14 +398,13 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
                 { id: 70, name: "Honey Coated Almonds", brand: "almond", price: "₹950-1,200 per kg", image: "https://anybodycanbake.com/wp-content/uploads/2017/08/Honey-Glazed-Almonds.jpg" },
                 { id: 71, name: "Brazil Nuts", brand: "brazilnut", price: "₹2,200-2,800 per kg", image: "https://media.post.rvohealth.io/wp-content/uploads/2022/05/brazil-nuts-1296x728-body.jpg" },
                 { id: 72, name: "Goji Berries", brand: "goji", price: "₹1,200-1,600 per kg", image: "https://www.mumubath.com/cdn/shop/articles/bowl_of_goji_berrie.png?v=1732442859&width=1024" },
-                { id: 73, name: "Dried Kiwi Slices", brand: "kiwi", price: "₹700-900 per kg", image: "https://m.media-amazon.com/images/I/41QLkVsh4YL.jpg" },
+                { id: 73, name: "Dried Kiwi Slices", brand: "kiwi", price: "₹700-900 per kg", image: "https://m.media-amazon.com/images-I/41QLkVsh4YL.jpg" },
                 { id: 74, name: "Dried Blueberriesa", brand: "blueberry", price: "₹1,300-1,700 per kg", image: "https://5.imimg.com/data5/ANDROID/Default/2025/6/518109894/VA/YU/QV/65727612/product-jpeg.jpg" },
                 { id: 75, name: "Dried Mango Slices", brand: "mango", price: "₹750-950 per kg", image: "https://www.chhappanbhog.com/wp-content/uploads/2022/07/Mango-1.jpg" },
                 { id: 76, name: "Cranberry Almond Mix", brand: "mix", price: "₹900-1,200 per kg", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0Ak7WeVggyIKN2s6l41uEK6Cj8_k-5HX5rruxA8bLtk3jmf-nUYlWsr4vCNnL6nGer28&usqp=CAU" }
             ]
         },
         Flowers: {
-            name: "Rose & Flowers",
             brands: ["Roses Only", "ProFlowers", "FTD", "Teleflora", "Bouqs", "Urban Stems"],
             products: [
                 { id: 1, name: "Red Rose Bouquet", brand: "rose", price: "₹500-1,000 per dozen", image: "https://cdn.igp.com/f_auto,q_auto,t_pnopt19prodlp/products/p-36-red-roses-bunch-359201-m.jpg" },
@@ -397,7 +430,6 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
             ]
         },
         Oil: {
-            name: "Cooking Oils",
             brands: [
                 "sunflower", "olive", "coconut", "palm", "soybean", "mustard",
                 "groundnut", "ricebran", "sesame", "cottonseed", "blend",
@@ -473,7 +505,6 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
             ]
         },
         Beverages: {
-            name: "Beverages & Drinks",
             brands: ["Coca-Cola", "Pepsi", "Nestlé", "Starbucks", "Red Bull", "Monster"],
             products: [
                 { id: 1, name: "Cola Soft Drink", brand: "softdrink", price: "₹40-60 per 500ml", image: "https://cdn.aarp.net/content/dam/aarp/health/healthy-living/2019/09/1140-diet-soda-study.jpg" },
@@ -499,7 +530,6 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
             ]
         },
         Tea: {
-            name: "Tea Collections",
             brands: ["Lipton", "Twinings", "Celestial Seasonings", "Bigelow", "Tetley", "Yogi"],
             products: [
                 { id: 1, name: "English Breakfast Tea", brand: "black", price: "₹300-500 per kg", image: "https://cdn.shopify.com/s/files/1/0615/9253/5282/files/Products_Signature_English_Breakfast_Horizontal_sz_1024x1024.jpg?v=1668614190" },
@@ -526,7 +556,7 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
         }
     };
 
-    const industryData = productsData[currentIndustry];
+    const industryData = productsData[currentIndustry] || productsData['Chocolate'];
 
     // Filter products based on search term and selected brand
     const filteredProducts = industryData.products.filter(product =>
@@ -618,7 +648,7 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
                     
                     {/* Mobile Sidebar (only visible when isSidebarOpen is true) */}
                     {isSidebarOpen && (
-                        <div className="lg:hidden absolute z-50 top-0 left-0 w-full h-full bg-black/50">
+                        <div className="lg:hidden fixed z-50 top-0 left-0 w-full h-full bg-black/50">
                             <div className="w-72 h-full bg-dark shadow-xl">
                                 <Sidebar
                                     goBackToProducts={goBackToProducts}
@@ -636,6 +666,14 @@ const Products = ({ industry, goBackToProducts, searchTerm, currentUser, onAuthR
                     
                     {/* Main content with larger gaps on both sides */}
                     <div className="flex-1 p-4 min-h-screen ml-6 mr-6">
+                        {/* Industry title */}
+                        <div className="mb-6 text-center">
+                            <h1 className="text-3xl text-secondary font-bold mb-2">
+                                {industryData.name}
+                            </h1>
+                           
+                        </div>
+                        
                         {currentSearchTerm && (
                             <div className="text-center mb-4">
                                 <div className="inline-block bg-white/10 rounded-full px-4 py-2">

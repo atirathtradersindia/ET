@@ -29,7 +29,7 @@ import Blog from './components/Blog';
 import BlogPost from './components/BlogPost';
 import Leadership from './components/Leadership';
 import Contactus from './components/Contactus';
-import BuyModal from './components/BuyModal'; // ADD THIS IMPORT
+import BuyModal from './components/BuyModal';
 
 // ---------- Admin Components ----------
 import AdminDashboard from './components/Admin/AdminDashboard';
@@ -40,8 +40,7 @@ import AdminHistory from './components/Admin/AdminHistory';
 import AdminLayout from './components/Admin/Adminlayout'; 
 import ProtectedAdminRoute from './components/Admin/ProtectedAdminRoute';
 
-// ---------- Placeholder pages (replace with real ones) ----------
-
+// ---------- Placeholder pages ----------
 const Dashboard = () => (
   <div className="p-8 min-h-screen">
     <h1 className="text-3xl text-secondary">Dashboard</h1>
@@ -69,8 +68,9 @@ function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showInnovationPage, setShowInnovationPage] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true); // ADD: Loading state
   
-  // ADD THESE STATES FOR BUY MODAL
+  // States for Buy Modal
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedIndustry, setSelectedIndustry] = useState('');
@@ -80,9 +80,7 @@ function App() {
 
   useAnimation();
 
-  // -----------------------------------------------------------------
   // Mobile menu / sidebar toggle
-  // -----------------------------------------------------------------
   const toggleMobileMenu = (open) =>
     setIsMobileMenuOpen(open !== undefined ? open : !isMobileMenuOpen);
   const toggleSidebar = (open) =>
@@ -99,11 +97,11 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // -----------------------------------------------------------------
-  // Auth listener
-  // -----------------------------------------------------------------
+  // Auth listener with loading state
   useEffect(() => {
     setIsMounted(true);
+    setAuthLoading(true);
+    
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setCurrentUser(user);
@@ -119,25 +117,23 @@ function App() {
         setCurrentUser(null);
         localStorage.removeItem('currentUser');
       }
+      setAuthLoading(false); // Auth check complete
     });
+    
     return () => unsubscribe();
   }, []);
 
-  // -----------------------------------------------------------------
   // Reset search when not on product pages
-  // -----------------------------------------------------------------
   useEffect(() => {
     const path = location.pathname;
-    if (!['/products', '/all-products', '/admin'].includes(path) && !path.startsWith('/admin/')) {
+    if (!path.startsWith('/products') && !path.startsWith('/admin')) {
       setSearchTerm('');
       setIsMobileMenuOpen(false);
       setIsSidebarOpen(false);
     }
   }, [location.pathname]);
 
-  // -----------------------------------------------------------------
-  // Navigation helpers (used by Header & other components)
-  // -----------------------------------------------------------------
+  // Navigation helpers
   const navigateToPage = (page) => {
     navigate(`/${page}`);
     if (page !== 'innovation') setShowInnovationPage(false);
@@ -155,8 +151,8 @@ function App() {
   };
 
   const showIndustryProducts = (industry) => {
-    setCurrentIndustry(industry);
-    navigate('/products');
+    const industrySlug = industry.toLowerCase().replace(/\s+/g, '-');
+    navigate(`/products/${industrySlug}`);
     setShowInnovationPage(false);
     setSearchTerm('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -189,9 +185,7 @@ function App() {
 
   const handleSearchChange = (term) => setSearchTerm(term);
 
-  // -----------------------------------------------------------------
-  // ADD: Buy Modal Handlers
-  // -----------------------------------------------------------------
+  // Buy Modal Handlers
   const openBuyModal = (product, industry) => {
     setSelectedProduct(product);
     setSelectedIndustry(industry);
@@ -204,9 +198,7 @@ function App() {
     setSelectedIndustry('');
   };
 
-  // -----------------------------------------------------------------
   // Sign-out
-  // -----------------------------------------------------------------
   const handleSignOut = async () => {
     try {
       await signOut(auth);
@@ -220,9 +212,7 @@ function App() {
     }
   };
 
-  // -----------------------------------------------------------------
   // Auth-required actions
-  // -----------------------------------------------------------------
   const handleAuthRequired = (action) => {
     if (!currentUser) {
       setAuthAction(action);
@@ -246,9 +236,7 @@ function App() {
   };
   const closeSignOutSuccess = () => setShowSignOutSuccess(false);
 
-  // -----------------------------------------------------------------
   // Render
-  // -----------------------------------------------------------------
   if (!isMounted) {
     return (
       <div className="min-h-screen bg-dark flex items-center justify-center">
@@ -329,18 +317,18 @@ function App() {
             path="/innovation"
             element={<Innovation onBackToHome={() => navigate('/home')} />}
           />
+          {/* Updated Products route with parameter */}
           <Route
-            path="/products"
+            path="/products/:industry"
             element={
               <Products
-                industry={currentIndustry}
                 goBackToProducts={goBackToAllProducts}
                 searchTerm={searchTerm}
                 currentUser={currentUser}
                 onAuthRequired={handleAuthRequired}
                 isSidebarOpen={isSidebarOpen}
                 toggleSidebar={toggleSidebar}
-                onBuyClick={openBuyModal} // PASS THE BUY MODAL HANDLER
+                onBuyClick={openBuyModal}
               />
             }
           />
@@ -351,7 +339,7 @@ function App() {
                 showIndustryProducts={showIndustryProducts}
                 currentUser={currentUser}
                 onBackToIndustries={goBackToIndustries}
-                onBuyClick={openBuyModal} // PASS THE BUY MODAL HANDLER
+                onBuyClick={openBuyModal}
               />
             }
           />
@@ -374,7 +362,7 @@ function App() {
           <Route
             path="/admin"
             element={
-              <ProtectedAdminRoute currentUser={currentUser}>
+              <ProtectedAdminRoute currentUser={currentUser} authLoading={authLoading}>
                 <AdminLayout
                   currentUser={currentUser}
                   onSignOut={handleSignOut}
@@ -389,7 +377,7 @@ function App() {
             <Route path="products" element={<AdminProducts />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="users" element={<AdminUsers />} />
-            <Route path="history" element={<AdminHistory />} /> {/* FIXED: Changed from "settings" to "history" */}
+            <Route path="history" element={<AdminHistory />} />
           </Route>
 
           {/* Default redirect */}
@@ -400,7 +388,7 @@ function App() {
       {/* Single Footer instance - Don't show on admin pages */}
       {!location.pathname.startsWith('/admin') && <Footer />}
 
-      {/* ADD: Buy Modal Component */}
+      {/* Buy Modal Component */}
       <BuyModal
         isOpen={isBuyModalOpen}
         onClose={closeBuyModal}

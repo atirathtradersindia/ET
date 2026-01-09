@@ -746,36 +746,7 @@ const Hero = ({ showInnovation }) => {
                 </div>
               </div>
 
-              {/* Bottom Close Button */}
-              <div className="flex mt-6 sm:mt-8 pt-4 sm:pt-6 border-t" style={{ borderColor: 'rgba(34, 197, 94, 0.3)' }}>
-                <button
-                  onClick={closePartnerModal}
-                  className="mx-auto py-2 sm:py-3 px-4 sm:px-6 rounded-full font-medium transition-all duration-300 transform hover:scale-105 active:scale-95 group relative overflow-hidden"
-                  style={{
-                    background: 'rgba(10, 15, 41, 0.9)',
-                    color: 'white',
-                    border: '2px solid rgba(34, 197, 94, 0.6)',
-                    boxShadow: '0 0 15px rgba(34, 197, 94, 0.2)',
-                    fontSize: isMobile ? '0.85rem' : '0.95rem',
-                    minWidth: isMobile ? '140px' : '160px'
-                  }}
-                >
-                  <div 
-                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
-                    style={{
-                      background: 'radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%)'
-                    }}
-                  ></div>
-                  
-                  <span className="relative z-10 flex items-center justify-center gap-1 sm:gap-2">
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="#22c55e" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                    Close Details
-                    <span className="text-xs group-hover:scale-150 transition-transform duration-300" style={{ color: '#22c55e' }}>✓</span>
-                  </span>
-                </button>
-              </div>
+              {/* Removed the bottom "Close Details" button as requested */}
             </div>
           </div>
         </div>

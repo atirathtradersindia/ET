@@ -89,9 +89,6 @@ const Header = ({
     if (path === '/leadership') return 'leadership';
     if (path === '/signin') return 'signin';
     if (path === '/signup') return 'signup';
-    if (path === '/orders') return 'orders';
-    if (path === '/settings') return 'settings';
-    if (path === '/account') return 'account';
     return 'home';
   };
 
@@ -336,6 +333,27 @@ const Header = ({
     }
     
     return "Member";
+  };
+
+  // Get user details for display
+  const getUserFullName = () => {
+    if (!mainWebsiteUser) return "";
+    return mainWebsiteUser.displayName || "";
+  };
+
+  const getUserEmail = () => {
+    if (!mainWebsiteUser) return "";
+    return mainWebsiteUser.email || "";
+  };
+
+  const getUserPhone = () => {
+    if (!mainWebsiteUser) return "";
+    return mainWebsiteUser.phoneNumber || "";
+  };
+
+  const getUserCountry = () => {
+    if (!mainWebsiteUser) return "";
+    return mainWebsiteUser.country || "";
   };
 
   return (
@@ -607,41 +625,57 @@ const Header = ({
                           {getUserRole()}
                         </p>
                         <p className="text-sm text-gray-300 truncate mt-1">
-                          {mainWebsiteUser.email}
+                          {getUserEmail() || "No email"}
                         </p>
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-3">
-                    <Link 
-                      to="/account" 
-                      className="font-medium hover:text-secondary transition-colors block py-3 px-4 rounded-lg text-center border border-secondary hover:bg-secondary/10 transition-all duration-200 text-base"
-                      onClick={() => toggleMobileMenu(false)}
-                    >
-                      My Account
-                    </Link>
-                    <Link 
-                      to="/orders" 
-                      className="font-medium hover:text-secondary transition-colors block py-3 px-4 rounded-lg text-center border border-secondary hover:bg-secondary/10 transition-all duration-200 text-base"
-                      onClick={() => toggleMobileMenu(false)}
-                    >
-                      My Orders
-                    </Link>
-                    <Link 
-                      to="/settings" 
-                      className="font-medium hover:text-secondary transition-colors block py-3 px-4 rounded-lg text-center border border-secondary hover:bg-secondary/10 transition-all duration-200 text-base"
-                      onClick={() => toggleMobileMenu(false)}
-                    >
-                      Settings
-                    </Link>
-                    <a 
-                      href="#signout" 
-                      onClick={handleSignOutClick} 
-                      className="font-medium hover:text-red-400 transition-colors block py-3 px-4 rounded-lg text-center border border-red-500 hover:bg-red-500/10 transition-all duration-200 text-base"
-                    >
-                      Sign Out
-                    </a>
+                  
+                  {/* ACCOUNT INFORMATION Section */}
+                  <div className="mb-4 px-2">
+                    <div className="bg-primary/50 border border-secondary/30 rounded-lg p-4">
+                      <h3 className="text-secondary font-bold text-base mb-4">ACCOUNT INFORMATION</h3>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-start">
+                          <span className="text-sm text-gray-400 min-w-24">Full Name:</span>
+                          <span className="text-light font-medium ml-2">
+                            {getUserFullName() || "Not provided"}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-start">
+                          <span className="text-sm text-gray-400 min-w-24">Email:</span>
+                          <span className="text-light font-medium ml-2">
+                            {getUserEmail() || "Not provided"}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-start">
+                          <span className="text-sm text-gray-400 min-w-24">Phone:</span>
+                          <span className="text-light font-medium ml-2">
+                            {getUserPhone() || "Not provided"}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-start">
+                          <span className="text-sm text-gray-400 min-w-24">Country:</span>
+                          <span className="text-light font-medium ml-2">
+                            {getUserCountry() || "Not provided"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
+                  
+                  {/* Sign Out Button */}
+                  <a 
+                    href="#signout" 
+                    onClick={handleSignOutClick} 
+                    className="font-medium hover:text-red-400 transition-colors block py-3 px-4 rounded-lg text-center border border-red-500 hover:bg-red-500/10 transition-all duration-200 text-base"
+                  >
+                    Sign Out
+                  </a>
                 </li>
               )}
 
@@ -681,36 +715,44 @@ const Header = ({
                   {getUserRole()}
                 </p>
                 <p className="text-xs text-gray-300 truncate mt-1">
-                  {mainWebsiteUser.email}
+                  {getUserEmail() || "No email"}
                 </p>
               </div>
               
-              <Link 
-                to="/account" 
-                className="flex items-center gap-3 px-4 py-3 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-sm border-b border-gray-700"
-                onClick={() => setShowProfileDropdown(false)}
-              >
-                <i className="fas fa-user-circle w-5 text-center"></i>
-                <span className="font-medium">My Account</span>
-              </Link>
-              
-              <Link 
-                to="/orders" 
-                className="flex items-center gap-3 px-4 py-3 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-sm border-b border-gray-700"
-                onClick={() => setShowProfileDropdown(false)}
-              >
-                <i className="fas fa-shopping-bag w-5 text-center"></i>
-                <span className="font-medium">My Orders</span>
-              </Link>
-              
-              <Link 
-                to="/settings" 
-                className="flex items-center gap-3 px-4 py-3 text-light hover:bg-secondary/20 hover:text-secondary transition-colors text-sm border-b border-gray-700"
-                onClick={() => setShowProfileDropdown(false)}
-              >
-                <i className="fas fa-cog w-5 text-center"></i>
-                <span className="font-medium">Settings</span>
-              </Link>
+              {/* ACCOUNT INFORMATION Section */}
+              <div className="px-4 py-4 border-b border-gray-700">
+                <h3 className="text-secondary font-bold text-sm mb-3">ACCOUNT INFORMATION</h3>
+                
+                <div className="space-y-2">
+                  <div className="flex items-start">
+                    <span className="text-xs text-gray-400 min-w-20">Full Name:</span>
+                    <span className="text-light font-medium text-sm ml-2">
+                      {getUserFullName() || "Not provided"}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <span className="text-xs text-gray-400 min-w-20">Email:</span>
+                    <span className="text-light font-medium text-sm ml-2">
+                      {getUserEmail() || "Not provided"}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <span className="text-xs text-gray-400 min-w-20">Phone:</span>
+                    <span className="text-light font-medium text-sm ml-2">
+                      {getUserPhone() || "Not provided"}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-start">
+                    <span className="text-xs text-gray-400 min-w-20">Country:</span>
+                    <span className="text-light font-medium text-sm ml-2">
+                      {getUserCountry() || "Not provided"}
+                    </span>
+                  </div>
+                </div>
+              </div>
               
               <div className="border-t border-gray-700 my-2"></div>
               

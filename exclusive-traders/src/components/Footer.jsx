@@ -1,7 +1,24 @@
 // Footer.jsx
-import logo from '../assets/logo.png'
+import { useNavigate } from 'react-router-dom';
+import logo from '../assets/logo.png';
 
-const Footer = ({ navigateToSection }) => {
+const Footer = () => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    // Scroll to top immediately
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    
+    // Small delay to ensure scroll happens before navigation
+    setTimeout(() => {
+      if (path === 'home') {
+        navigate('/');
+      } else {
+        navigate(`/${path}`);
+      }
+    }, 10);
+  };
+
   return (
     <footer className="bg-primary text-white py-8 md:py-10 overflow-x-hidden">
       <div className="container mx-auto px-4 max-w-7xl">
@@ -72,16 +89,16 @@ const Footer = ({ navigateToSection }) => {
             </h3>
             <ul className="list-none space-y-1 sm:space-y-2">
               {[
-                { label: 'Home', section: 'hero' },
-                { label: 'Services', section: 'services' },
-                { label: 'Industries', section: 'industries' },
-                { label: 'About Us', section: 'about' },
-                { label: 'Feedback', section: 'quote-request' },
-                { label:  'Contactus',section: 'Contactus' },
+                { label: 'Home', path: 'home' },
+                { label: 'Services', path: 'services' },
+                { label: 'Industries', path: 'industries' },
+                { label: 'About ', path: 'about' },
+                { label: 'Feedback', path: 'feedback' },
+                { label: 'Contactus', path: 'contact' },
               ].map((item) => (
-                <li key={item.section}>
+                <li key={item.path}>
                   <button
-                    onClick={() => navigateToSection(item.section)}
+                    onClick={() => handleNavigation(item.path)}
                     className="text-white text-xs sm:text-sm transition-colors duration-300 hover:text-secondary text-left w-full py-1"
                   >
                     {item.label}
